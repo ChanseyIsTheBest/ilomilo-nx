@@ -430,6 +430,13 @@ Hand-written natives: none (they need console profile data past the gate).
     clip controls are logged ("[ilomilo] a rectangle list with PA_CL_CLIP_CNTL ..."). If ilomilo leaves clipping on
     for these passes, the fault is Ryujinx's rounding at the far plane and the console is expected to be clean (to
     be checked there).
+  - emu16: ilomilo's rectangle lists come with PA_CL_CLIP_CNTL `00080000` (D3D clip space, clipping on), so the
+    clip_disable key does not act; the picture is unchanged. `ilomilo_renut_rect_depth_clamp` (on; rectangle lists
+    clamp depth, the same pixels for any rectangle inside the depth range) built for emu17: unchanged as well. Ryujinx
+    turns host depth clamping on whenever the guest's ViewVolumeClipControl lacks DepthClampDisabled (its
+    StateUpdater.UpdateDepthClampState), so the clamp did reach it: the "depthClipped" flags may not be the cause.
+    Next: a capture of this build, the blur draw's pixel history again, and its pixel shader (the one
+    `shaderDiscarded` fragment: the depth-of-field shader may discard by the depth it samples).
 
 ## SMAA (2026-11-25)
 
