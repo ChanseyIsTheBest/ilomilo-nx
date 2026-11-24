@@ -21,6 +21,16 @@ sdmc:/switch/ilomilo-nx/game_root/            the game package's files (default.
                                               the base image does not match it)
 sdmc:/switch/ilomilo-nx/dlc/                  the DLC package ("autumn tale", the LIVE file as it comes, content
                                               type 2), read in place
+sdmc:/switch/ilomilo-nx/deko3d_glsl.bin       the game's shaders for the Switch's GPU: NOT in this package and not
+                                              in the NRO (they are the game's); the web installer makes this file
+                                              from your own game files. Without it the NRO draws nothing.
+sdmc:/switch/ilomilo-nx/deko3d_shaders.bin    the prebuilt shader cache (compiled code of the pipelines the
+                                              emulator met, 293 variants); the NRO adds what it compiles itself
+
+The web installer (its page: ilomilo-nx-installer) reads your game files in the browser and writes the SD card's
+folder for you: game_root/ with the smaller stand-ins the NRO reads in place of the originals (the sound banks' XMA
+as Opus .xmop, the all-PCM startup bank as .opcm, the trial's upsell movie as H.265, the rest packed LZ4 / ZXC as
+.lz4b), deko3d_glsl.bin, the title update's default.xexp and the DLC. Your files never leave your computer.
 
 The tomls
 ---------
