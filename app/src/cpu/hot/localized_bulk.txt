@@ -19,7 +19,9 @@
 8218E0A0 PC gameplay profile 2026-11-25 (prof1, 240 s: menus, story intro, first level): 711 samples, 99 instructions
 82250D68 PC gameplay profile 2026-11-25 (prof1, 240 s: menus, story intro, first level): 588 samples, 186 instructions
 821FA8C0 PC gameplay profile 2026-11-25 (prof1, 240 s: menus, story intro, first level): 568 samples, 302 instructions
-820B3F90 PC gameplay profile 2026-11-25 (prof1, 240 s: menus, story intro, first level): 554 samples, 84 instructions
+# out: 820B3F90 the guard found a difference (verify3, 2026-11-25 09:45: f1 copy=0xc045a27d60000000 original=0, 3 passes
+# in a row, after 61,854 calls compared; inputs r3=0x7010f230 r4=0x42911150 r5=0x42911380; same code as in verify2,
+# where it matched every call): kept out (PC gameplay profile prof1, 554 samples, 84 instructions)
 822731C8 PC gameplay profile 2026-11-25 (prof1, 240 s: menus, story intro, first level): 524 samples, 97 instructions
 820C6010 PC gameplay profile 2026-11-25 (prof1, 240 s: menus, story intro, first level): 516 samples, 1061 instructions
 821A2870 PC gameplay profile 2026-11-25 (prof1, 240 s: menus, story intro, first level): 464 samples, 102 instructions

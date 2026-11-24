@@ -500,6 +500,27 @@ the main target (the depth-of-field composite), then the HUD (alpha-blended stri
 `banjo_renut_smaa_after_ps = "0B4973CE2EEC601A"` (built-in settings and the package tomls): the PC's 10 s line then
 says "SMAA ... 600 frames" in gameplay. (Menus that draw no depth of field get no SMAA.)
 
+## Eligible batch 1 (2026-11-25, the base's optimising-functions.md "What to do next" 1-2)
+
+- **The choice** (tools/hot_eligible_batch.py, new): every generated function by tools/switch_hot_bulk.py's own rules
+  (no tiny leaves, nothing under 40 instructions, nothing an app or SDK source mentions, no threaded dispatch,
+  localize_native.fits()): **5,222 eligible of 12,597**. The direct callees of the copies first (none eligible:
+  already copied, tiny, small or not generated code), then their callers (a function that calls a hot one tends to run
+  often itself): **500 taken**, the list now 636 lines (633 copies made, 3 refused as before).
+- **Cost:** post_codegen 16 minutes (105 generated files changed, 1,000 new files of the copies); the everyday
+  Switch build 8 minutes (92 steps); **NRO 45.8 -> 49.0 MB: about 6.4 KB a copy** (the base guessed 11 KB). At that
+  rate all 5,222 would add about 33 MB. D: had 30 GB free afterwards.
+- **verify3** (the PC build with batch 1, 240 s, the gameplay script): 346 of 633 copies reached, 123.4 million calls
+  compared, **one difference**: `sub_820B3F90`, **not a batch-1 copy** but one of the first 90 (prof1, 554 samples, a
+  3x4 matrix product: loads from r4 and r5, 12 stores at r3; a leaf, its copy unchanged since 07:18 and matching every
+  call in guard1 and verify2): "f1 copy=0xc045a27d60000000 original=0x0000000000000000 (3 passes in a row); inputs
+  r3=0x7010f230 r4=0x42911150 r5=0x42911380 r6=0 r7=0 f1=0x3f90c50000000000 f2=0x3feffe1980000000; 52 bytes in 2 written
+  ranges", after 61,854 calls compared; the guard switched it off for the rest of the run. Both forms compute f1 the
+  same way (`fmadds f1,f26,f22,f6`, the same loads and store order), so the cause is not visible in the text: an input
+  this run reached for the first time (r3 is a stack address; the 52 bytes include the LR save at r1-8). Not chased
+  further today. **Taken out** of the list with a `# out:` line (the base's rule for a copy the guard rejects); rc1's
+  NRO still has it in place, so rc2 replaces rc1. Then post_codegen, the Switch and PC builds and verify4 again.
+
 ## Late input (2026-11-25)
 
 `banjo_late_input = true` (built in, and in every toml). It acts on the Switch build: emu22's `[latency]` lines (the
