@@ -79,3 +79,8 @@ Times are AEST. The session runs until 23:04 on Wednesday 25 November 2026; no c
   (switch_hot_bulk.py --merge; ELF kept as out/elf/renut_14a84197.elf). Next, when Poker Smash's runs end: emu21
   (sasrt_gpu_clip_spec = false on the current NRO: the cause confirmed if the wedges go), post_codegen + Switch
   build, emu22 (the fix and the copies).
+- 06:25-06:50 emu21 (sasrt_gpu_clip_spec off): areas of another shape, not gone (Ryujinx's GS carries clip distances
+  1-3 too). post_codegen with the 32 copies (keep_mtimes: 91 files changed), Switch build 11 (5 min, NRO 45.8 MB),
+  emu22: **the picture is whole in Ryujinx** (logo, title backdrop, loading card, the first level's sky), 56-60 fps.
+  Handoff 6 completed with the results. 11 more copies from emu22's profile (136 on the list). Poker Smash has the
+  machine (~40 min: PC build and run, Switch build, Ryujinx run).
