@@ -236,6 +236,10 @@ set(RENUT_SOURCES
     src/cpu/blur_microbench.cpp
     # ilomilo-nx (2026-11-25): the emulator frame stall's diagnostic (ilomilo_frame_diag, off).
     src/cpu/ilomilo_frame_diag.cpp
+    # ilomilo-nx (2026-11-25, the user's media request): the movie (Data/media/upsell.wmv) by FFmpeg's WMV3, or H.265
+    # through nxvideo (NVDEC) when the installer re-encoded it: the base's katamari_wmv_ffmpeg.cpp at ilomilo's
+    # addresses of the same XMedia WMV9 wrapper.
+    src/cpu/ilomilo_wmv_ffmpeg.cpp
     # ilomilo-nx: Katamari's stage diagnostic and its movie hook (src/cpu/katamari_wmv_ffmpeg.cpp, at Katamari's
     # addresses) are not built; ilomilo's own movie hook, at its WMV codec's addresses, is docs/ilomilo-notes.md's
     # "Movies".

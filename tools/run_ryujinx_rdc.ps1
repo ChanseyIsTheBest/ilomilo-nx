@@ -10,15 +10,20 @@ $root = Split-Path -Parent $PSScriptRoot
 # renut-ultimate (2026-11-13): the RenderDoc folder from RENDERDOC_DIR, else banjo-nx's copy.
 $rdcDir = if ($env:RENDERDOC_DIR) { $env:RENDERDOC_DIR } else { "D:\Banjo kazooie port\tools\RenderDoc_1.46_64" }
 $ryu = "D:\New folder\Ryubing-src\ryubing\build\Ryujinx.exe"
-$data = "D:\New folder\ryu-data\katamari"
-$sd = Join-Path $data "sdcard\switch\katamari-nx"
-$nro = Join-Path $sd "katamari-nx.nro"
+# ilomilo-nx (2026-11-25): this port's data folder, SD folder, NRO (copied from app\out\switch as run_ryujinx.ps1 does)
+# and settings file (ilomilo.toml, saved and put back after the run).
+$data = "D:\New folder\ryu-data\ilomilo"
+$sd = Join-Path $data "sdcard\switch\ilomilo-nx"
+$nro = Join-Path $sd "ilomilo-nx.nro"
 $out = Join-Path $root "out\emu_runs\$Name"
 if (Get-Process -Name Ryujinx -ErrorAction SilentlyContinue) { Write-Output "a Ryujinx is running (another port's?): not starting"; exit 2 }
 $os = Get-CimInstance Win32_OperatingSystem
 $freeCommit = $os.FreeVirtualMemory / 1MB
 if ($freeCommit -lt $MinCommitGB) { Write-Output ("free commit memory {0:N1} GB < {1} GB: not starting" -f $freeCommit, $MinCommitGB); exit 3 }
-if ($Toml) { Copy-Item $Toml (Join-Path $sd "katamari.toml") -Force }
+Copy-Item (Join-Path $root "app\out\switch\renut.nro") $nro -Force
+$sdToml = Join-Path $sd "ilomilo.toml"
+$savedToml = Join-Path $sd "ilomilo.toml.saved"
+if ($Toml) { if (Test-Path $sdToml) { Copy-Item $sdToml $savedToml -Force }; Copy-Item $Toml $sdToml -Force }
 New-Item -ItemType Directory -Force $out | Out-Null
 $logs = Join-Path $sd "logs"
 if (Test-Path $logs) { Remove-Item -Recurse -Force $logs }
@@ -42,6 +47,7 @@ if (-not $p.HasExited) { Stop-Process -Id $p.Id -Force; Write-Output "stopped Ry
 Start-Sleep -Seconds 3
 if (-not $q.HasExited) { Stop-Process -Id $q.Id -Force; Write-Output "stopped qrenderdoc pid $($q.Id)" }
 if (Test-Path $logs) { Copy-Item -Recurse $logs (Join-Path $out "logs") -Force }
+if ($Toml) { if (Test-Path $savedToml) { Copy-Item $savedToml $sdToml -Force; Remove-Item $savedToml } else { Remove-Item $sdToml -ErrorAction SilentlyContinue } }
 $caps = Join-Path $sd "capturas"
 if (Test-Path $caps) { Get-ChildItem $caps -Filter *.png | Move-Item -Destination $out -Force -ErrorAction SilentlyContinue }
 Get-Content (Join-Path $out "trigger.txt") -ErrorAction SilentlyContinue

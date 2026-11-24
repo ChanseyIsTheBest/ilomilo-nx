@@ -403,6 +403,16 @@ Hand-written natives: none (they need console profile data past the gate).
   colour hand-over (`banjo_deko3d_color_handover`: a whole colour resolve not drawn, the texture sampled from the
   target's image), which reports 2 resolves a frame not drawn while ilomilo resolves its tiles one by one and clears
   the target after each. Test: the same run with the hand-overs off (`out/emu_tomls/emu_ho_*.toml`).
+  - emu10 (colour hand-over off), emu11 (all four hand-overs off), emu12 (`banjo_noncpu_enhancements = false`: every
+    non-CPU enhancement off) and emu13 (the deko3d depth items off: 24-bit depth, precise depth resolve, the float
+    depth-resolve shader): the same colours in every one. Not an optional item: the core deko3d path, or Ryujinx.
+  - Re-read: the colours are expected in the target before the backdrop draws (tiles 0-1 are prepared with
+    BeginTiling's colour, tile 2 with EndTiling's, as the original EndTiling does for the next tile), and the PC's
+    backdrop covers them every frame. The emulator's per-shader GPU profile at the title adds up to the PC's ~105
+    draws a frame, so the backdrop draws are issued; what they write does not show. The texture formats are mapped
+    alike by both back ends at Renut's level (DXT1 55, 8 50, DXT4_5 61, 8_8_8_8 20). Next: a RenderDoc capture of
+    Ryujinx at the title (tools/run_ryujinx_rdc.ps1, now pointed at this port's folders) and a pixel history
+    (tools/rdc_pixel.py) at a blue pixel.
 
 ## SMAA (2026-11-25)
 
@@ -412,6 +422,42 @@ blur: pixel shaders `5D2224AD595D5FCC`, `949ED45F4495B293`), then **`0B4973CE2EE
 the main target (the depth-of-field composite), then the HUD (alpha-blended strips and quads). The same in both frames.
 `banjo_renut_smaa_after_ps = "0B4973CE2EEC601A"` (built-in settings and the package tomls): the PC's 10 s line then
 says "SMAA ... 600 frames" in gameplay. (Menus that draw no depth of field get no SMAA.)
+
+## Smaller game files: Opus, H.265, LZ4 / ZXC (2026-11-25, the user's request via the Ridge Racer 6 session)
+
+The user: "re-encode their audio and video to opus and h265 and L4Z/ZXC stuff as a part of the progress". The method
+is the base's docs/media-compression.md; the base's SDK already reads every stand-in used here (port 259: `.lz4b`
+versions 1-2, `.xmop`, `.opcm`; 22,050 Hz `.xmop` sounds since port 278), so only the movie needs code in the NRO.
+Everything is made by the web installer (D:\ilomilo\ilomilo-nx-installer) from the player's own files; the PC tests
+write under out/media and D:\ilomilo\game_media (game data: never committed).
+
+- **What the game has** (D:\ilomilo\game, 224 MB): 9 XACT 3 wave banks (`Data/sound/Xbox/*.xwb`, version 46, header
+  version 44; 80.5 MB): 435 XMA sounds, mono and stereo, each at its own measured rate (42,522-44,570 Hz), and PCM
+  16-bit big-endian sounds (startup.xwb, 17.5 MB, is all PCM); one movie, `Data/media/upsell.wmv` (WMV3 1280x720 59.94
+  fps 7 Mbit/s, WMA Pro stereo, 37.0 MB; the trial's buy screen only); 359 `.dds` textures (95 MB); 5 `.par`
+  archives (ZIP, deflate: 16.9 MB); fonts (19.7 MB); small rest.
+- **Audio, XMA -> `.xmop`.** The installer's reader for XACT 3 banks (`lib/xact3.js`, game.json audio container
+  `xact`; after vivapinata-nx-installer's XACT 2 reader: the regions start at byte 12). The SDK only compares a
+  sound's declared rate with its Opus rate (to resample), never with the stream's, so `near_hz` 1700 declares every
+  ~44 kHz sound 44,100 Hz (48 kHz Opus, 160/147 back): the game's voice keeps its own rate. Music 128 / 64 kbit/s,
+  the rest 96 / 48; ids `0x69 << 24 | bank << 16 | sound`. PC test (`test/xmop_node.mjs`, ffmpeg libopus): the 8 XMA
+  banks 63.0 -> 53.0 MB; every file `test/xmop_check.mjs` OK (headers, frame lengths, last bits, tags, walks). The
+  music barely shrinks (44.0 -> 41.8 MB): its XMA is already ~134 kbit/s against Opus at 128. **The user's call:** the
+  music at 96 / 48 kbit/s would save about 11 MB more (it changes what is heard).
+- **Audio, PCM -> `.opcm`.** banjo-nx-installer's `lib/opcm.js` (its XACT bank finder) for startup.xwb (game.json
+  `opcm`, a third media kind); its byte-order guess was wrong for one sound (entry 8, stereo 2.98 MB: steps 503
+  big-endian against 21,826 little-endian, the guess divided by the levels said little): it now compares the raw
+  steps (the guide's rule). 17.53 -> 1.85 MB, every non-PCM byte stored.
+- **The movie, WMV3 -> H.265 in the ASF** (installer `movies`, fraction 0.35, gop 120, then ZXC). The NRO's hook:
+  `app/src/cpu/ilomilo_wmv_ffmpeg.cpp`, the base's Katamari hook at ilomilo's addresses of the same XMedia WMV9
+  wrapper (decode sub_82390E98, get output sub_82390EF8, flush sub_82390D90, destroy sub_82390DE8, GetData
+  sub_82390AD0, status sub_823909F0; the interface filler sub_82391478 stores them at Katamari's offsets; reached
+  only through that interface: no regeneration needed). PC test with culdcept-nx's `tools/hevc_movie.py` (NVENC):
+  35.2 -> 13.4 MB (38.1 %, 2,519 frames). The full game never plays it (trial only); not built yet.
+- **Packing** (measured with the installer's own codecs, `out/media/pack_measure.txt`): textures LZ4 55.5 % (ZXC
+  no smaller), fonts ZXC 60 %, the PCM bank ZXC 74 % when it is not `.opcm`, the `.par` (deflated), PNGs and the
+  executables as they are; the rest LZ4. The XMA banks pack to 98 %: their `.xmop` stays unpacked (the 5 % rule).
+- **Totals (PC figures):** audio 80.5 -> about 54.8 MB, the movie 37.0 -> 13.4 MB, textures 95.0 -> 52.7 MB.
 
 ## Audio: the stereo check (2026-11-25, blur-nx's port 135)
 
