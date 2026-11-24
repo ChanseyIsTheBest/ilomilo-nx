@@ -97,11 +97,54 @@ void StartReporter() {
 
 }  // namespace
 
+// ---------------------------------------------------------------------------------------------------------------------
+// The fix (ilomilo_logo_hold_resume). The scene render's state 0 (the start-up logo; sub_820F3040 at 0x820F31A4) holds
+// the logo on screen: on its 2nd frame it presents and suspends the render device (0x820F3300), and each later frame
+// of state 0 resumes it once KeTimeStampBundle's TickCount is 1000 past the state's stamp. Only state 0 resumes it. In
+// Ryujinx the first frames took about 2 s for four (pipelines compiled on first use): the game's update moved the scene
+// to state 5 (then 2) before another state-0 frame ran, and the device stayed suspended for good. The game rendered
+// ~500 frames a second from then on and presented none (emu2-emu8, docs/ilomilo-notes.md). The fix ends the hold when
+// the scene leaves state 0 with the device still suspended by it: the device's own Resume (slot 0xF8, sub_821F3100),
+// called on the render device at the next frame's render (slot 0x44, sub_821F15B8, whose r3 is the device). At normal
+// frame rates state 0 resumes it itself first and the fix never acts. Off: the game's own code alone.
+REXCVAR_DEFINE_BOOL(ilomilo_logo_hold_resume, true, "ilomilo/Fixes",
+                    "End the start-up logo's display hold (the render device suspended by the scene's state 0) when "
+                    "the scene leaves state 0 still held: with slow first frames the game's own resume never ran and "
+                    "nothing was presented again")
+    .lifecycle(rex::cvar::Lifecycle::kInitOnly);
+
+namespace {
+constexpr uint32_t kSceneObject = 0x826ACC58;  // the scene render's object (sub_820F3040's r3); its state at +16
+constexpr uint32_t kSuspendedFlag = 0x826B71FC;  // the render device's suspended flag (slot 0xFC, sub_821F3168)
+std::atomic<bool> g_logo_hold{false};  // the device is suspended by state 0's hold
+
+uint32_t SceneState() {
+  const uint32_t scene = GuestWord(kSceneObject);
+  return scene ? GuestWord(scene + 16) : 0xFFFFFFFFu;
+}
+}  // namespace
+
+REX_EXTERN(__imp__sub_821F3100);
+
 REX_EXTERN(__imp__sub_821F15B8);
 REX_HOOK_RAW(sub_821F15B8) {
   if (REXCVAR_GET(ilomilo_frame_diag)) [[unlikely]] {
     StartReporter();
     g_renders.fetch_add(1, std::memory_order_relaxed);
+  }
+  static const bool fix = REXCVAR_GET(ilomilo_logo_hold_resume);
+  if (fix && g_logo_hold.load(std::memory_order_relaxed)) [[unlikely]] {
+    const uint32_t state = SceneState();
+    if (state != 0 && GuestWord(kSuspendedFlag) != 0) {
+      g_logo_hold.store(false, std::memory_order_relaxed);
+      REXLOG_INFO("[ilomilo] ilomilo_logo_hold_resume: the scene left the logo's state 0 (now state {}) with the render "
+                  "device still suspended by its hold; resumed here (its own resume needs a state-0 frame a second "
+                  "after the state began)",
+                  state);
+      PPCContext saved = ctx;  // r3 is the render device (this call is its slot 0x44): its Resume takes the same r3
+      __imp__sub_821F3100(ctx, base);
+      ctx = saved;
+    }
   }
   __imp__sub_821F15B8(ctx, base);
 }
@@ -155,6 +198,9 @@ REX_HOOK_RAW(sub_821F3098) {
   const bool on = REXCVAR_GET(ilomilo_frame_diag);
   const uint32_t lr = uint32_t(ctx.lr);
   __imp__sub_821F3098(ctx, base);
+  // The logo's hold: a Suspend made while the scene is in state 0 (its 2nd frame, 0x820F3300).
+  if (SceneState() == 0)
+    g_logo_hold.store(true, std::memory_order_relaxed);
   if (on && LogMore()) {
     REXLOG_INFO("[ilomilo_frame_diag] device Suspend (sub_821F3098) from LR {:08X}: flag [0x826B71FC] = {}", lr,
                 GuestWord(0x826B71FC));
@@ -162,11 +208,11 @@ REX_HOOK_RAW(sub_821F3098) {
   }
 }
 
-REX_EXTERN(__imp__sub_821F3100);
 REX_HOOK_RAW(sub_821F3100) {
   const bool on = REXCVAR_GET(ilomilo_frame_diag);
   const uint32_t lr = uint32_t(ctx.lr);
   __imp__sub_821F3100(ctx, base);
+  g_logo_hold.store(false, std::memory_order_relaxed);  // resumed (by the game, or by the fix)
   if (on && LogMore()) {
     REXLOG_INFO("[ilomilo_frame_diag] device Resume (sub_821F3100) from LR {:08X}: flag [0x826B71FC] = {}", lr,
                 GuestWord(0x826B71FC));

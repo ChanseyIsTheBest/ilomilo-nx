@@ -383,6 +383,26 @@ Hand-written natives: none (they need console profile data past the gate).
   refreshes it from `Clock::QueryGuestUptimeMillis()` with a repeating timer (`kernel_timestamp_interval_ms`; the
   emulator's rex_profile shows the timer firing about 100 times a second). Next run: the diagnostic logs the
   TickCount, the state and the stamp every 2 s.
+- `emu8` (the TickCount, the scene's state and stamp every 2 s): the TickCount advances normally (6,759 -> 28,829 over
+  44 s); state 0's stamp is 4,764; at the first report (2 s) the scene is still in state 0 with 2,000 ms gone, but
+  only 4 renders had run (the first frames compile their pipelines), and by the next report the game's update had
+  moved the scene to state 5 (later 2). Only state 0 resumes, so the hold never ended. **Cause: the logo's hold
+  relies on a state-0 frame running after its second has passed; with slow first frames none does.** The PC renders
+  60 a second from the start, so its state 0 resumes it.
+- **The fix, `ilomilo_logo_hold_resume` (on; app/src/cpu/ilomilo_frame_diag.cpp):** the hooks on the render
+  device's Suspend / Resume (slots 0xF4 / 0xF8, reached only through the vtable, so no post_codegen is needed) note a
+  Suspend made in state 0; when the scene's state is no longer 0 at the next frame's render (slot 0x44, sub_821F15B8,
+  r3 the device) and the device is still suspended by it, the device's own Resume runs there. At normal frame rates
+  the game resumes first and the fix does nothing. `emu9` (Ryujinx, 200 s): the fix acted once (state 1), and the
+  game ran at 55-60 fps from then on: the SouthEnd logo, the title and story select, a loading screen, the prologue
+  card and the first level in the 12 captures (`out/emu_runs/emu9/sheet.png`).
+- **A Switch-only picture fault, being chased:** large areas of a solid colour (blue, red or green, changing between
+  screens) where the PC shows the pale backdrop: the top two of the three 256-line tiles. That colour is the game's
+  own clear colour for those tiles (BeginTiling's pClearColor, kept at device +0x3440, which BeginTiling's own code
+  confirms: `stvx128` there, zeros when none), normally covered by the backdrop. First suspect: the deko3d-only
+  colour hand-over (`banjo_deko3d_color_handover`: a whole colour resolve not drawn, the texture sampled from the
+  target's image), which reports 2 resolves a frame not drawn while ilomilo resolves its tiles one by one and clears
+  the target after each. Test: the same run with the hand-overs off (`out/emu_tomls/emu_ho_*.toml`).
 
 ## SMAA (2026-11-25)
 

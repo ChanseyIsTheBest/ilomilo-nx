@@ -54,3 +54,11 @@ Times are AEST. The session runs until 23:04 on Wednesday 25 November 2026; no c
   [0x826B71FC] is 0, so the device was suspended after frame 2 and never resumed. The diagnostic now logs each device
   Suspend/Resume with its caller and sub_82365B50's entry/exit; waiting for a slot. Handoff 4 (Ryujinx's rexglue logs
   in /switch/, the runner collects them) in D:\ilomilo\out.
+- 04:00-04:25 emu8: TickCount advances; the logo's state 0 ends (to state 5) before a state-0 frame runs a second
+  after it began, so the game's resume never comes. ilomilo_logo_hold_resume (on) resumes the device when the scene
+  leaves state 0 still held. emu9 (full machine copies back): 55-60 fps, logo, menus, loading, prologue and the first
+  level captured. A Switch-only fault remains: the top two tiles show the game's clear colour where the PC shows the
+  backdrop (suspect: deko3d's colour hand-over); emulator-only runs with the hand-overs off queued.
+- The user's new instruction (via the Ridge Racer 6 session): re-encode audio to Opus, the movie to H.265, and pack
+  the files LZ4/ZXC. Started: the installer's XACT 3 reader (lib/xact3.js, container "xact"), game.json's audio
+  section; all 435 XMA sounds (63.1 MB) qualify; startup.xwb (PCM) stays packed PCM.
