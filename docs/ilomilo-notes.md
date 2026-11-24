@@ -580,6 +580,17 @@ write under out/media and D:\ilomilo\game_media (game data: never committed).
   comparable: stopped in both forms with the same stores before a real call); generated-code self-checks, r1 mirror,
   stack forwards, flush-mode flow: 0 differences. (Two Windows-only breaks in ilomilo_frame_diag.cpp fixed first:
   pthread.h and _Unwind_Backtrace.)
+- **The guard build** (tools/ilomilo_build_switch_guard.bat, new wrapper: app/out/switch-guard, the copies hooked with
+  their guard forms; 48.2 MB) **in Ryujinx** (`emu28_guard`, 240 s, `banjo_hot_guard_calls = 4000`, period 64,
+  `banjo_cpu_verify`): 115 of 133 copies reached, **20.0 million calls compared, 0 differences**. With every call run
+  twice it reached only the title in 240 s; the PC's verify2 covers the gameplay. `banjo_hot_poison_dead` was on too
+  but never acted there: it poisons only after unguarded calls, and `banjo_cpu_verify` guards every one (its log
+  line never came), so the poison check is its own run.
+- **The poison check** (`poison1`: the PC's hooked build, `banjo_hot_poison_dead = true`, the default guard spacing,
+  so nearly every call unguarded and poisoned after; 240 s, the full game, the gameplay script): the line
+  "banjo_hot_poison_dead: the copies' dead-after-return registers get garbage from now on" at 08:52; 126 of 133 copies
+  reached; 0 differences, no crash; the menu, the prologue and the first level played as before (captures). No copy's
+  liveness claim (tools/reg_liveness.py, leaf_dead_stores.py) is wrong where the game went.
 - **The web installer's release** (D:\ilomilo\ilomilo-nx-installer, commit 032c89b, local): make_release.py --version
   0.1.0 with Title Update #1 and the 16 records (218 shaders: 83 in default.xex, 135 in the game's files);
   test/full_node.mjs --opus --reference (2 min: 444 variants, 8 banks as .xmop, startup as .opcm, 145 -> 97 MB packed)
