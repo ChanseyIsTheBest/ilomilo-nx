@@ -541,6 +541,12 @@ write under out/media and D:\ilomilo\game_media (game data: never committed).
     and presses A (50 s), captures every 3 s. Its audio came from the stand-ins: the log's `[xmo]` lines load all 8
     banks' Opus sounds (music 20, ambience 50, narrator 77, misc 108 ...), and the 10 s reports show sound playing
     (426-464 of ~430-470 audout buffers non-zero, peak 0.12-0.22, nothing saturated).
+  - emu24_upsell and emu25_upsell (the first overlapping Poker Smash's release build, under the user's new rule: two
+    builds and one Ryujinx run at a time, a run may overlap builds): both ended on the trial map. Loaded, the
+    intro is slower (logos 32-45 s, the door 45, the title 48, the menu 51), and the menus read the script's presses as
+    queued key events: presses made while loading are consumed by later screens, and a left-over A chose "single
+    player" before the DOWNs came. emu_upsell3.toml presses nothing until the intro is surely over: START at 70 s
+    (the title), DOWN six times at 75-80 s, A at 83 s.
 - **Packing** (measured with the installer's own codecs, `out/media/pack_measure.txt`): textures LZ4 55.5 % (ZXC
   no smaller), fonts ZXC 60 %, the PCM bank ZXC 74 % when it is not `.opcm`, the `.par` (deflated), PNGs and the
   executables as they are; the rest LZ4. The XMA banks pack to 98 %: their `.xmop` stays unpacked (the 5 % rule).
