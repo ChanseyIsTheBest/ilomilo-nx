@@ -199,7 +199,7 @@ endif()
 # shader harvest): src/katamari_keys.cpp defines the keys of those files that the kept ones still read.
 # renut-ultimate (2026-11-20, port 193): the game's name in the build stamp (src/build_stamp.cpp) and the NRO's title. A
 # port sets its own here.
-set(RENUT_GAME_NAME "Beautiful Katamari")
+set(RENUT_GAME_NAME "ilomilo")
 
 set(RENUT_SOURCES
     src/main.cpp
@@ -234,11 +234,9 @@ set(RENUT_SOURCES
     src/cpu/banjo_forms_selfcheck.cpp
     # blur-nx (2026-11-11, port 90): timings of a few processor forms at boot (blur_microbench, off).
     src/cpu/blur_microbench.cpp
-    # katamari-nx (2026-11-01): diagnostic of the game state's stage fields (katamari_diag_game_state, off).
-    src/cpu/katamari_stage_diag.cpp
-    # renut-ultimate (2026-11-23): the movies (data/movie/*.wmv) by FFmpeg's WMV3 decoder, or nxvideo (NVDEC) when the
-    # installer re-encoded them to H.265: vivapinata-nx's / banjo-nx's / culdcept-nx's hook at Katamari's addresses.
-    src/cpu/katamari_wmv_ffmpeg.cpp
+    # ilomilo-nx: Katamari's stage diagnostic and its movie hook (src/cpu/katamari_wmv_ffmpeg.cpp, at Katamari's
+    # addresses) are not built; ilomilo's own movie hook, at its WMV codec's addresses, is docs/ilomilo-notes.md's
+    # "Movies".
     # katamari-nx: the native copies of hot game functions (banjo_hot_guest.cpp and its shards), from this game's PC
     # profile (docs/katamari-notes.md, "Hot functions"): src/cpu/hot/localized.txt and hand.txt.
     src/cpu/banjo_hot_guest.cpp
@@ -309,7 +307,7 @@ rexglue_setup_target(renut GPU_PLUGINS xenos)
 # banjo-nx (2026-10-17): Ryujinx starts NROs without argv[0]; the SDK then takes the NRO's usual place on the SD
 # (sdk/src/core/filesystem_posix.cpp). A console's hbloader always passes the path, so nothing changes there.
 if(REXGLUE_PLATFORM_SWITCH AND TARGET rexcore)
-    target_compile_definitions(rexcore PRIVATE REX_SWITCH_FALLBACK_EXE="/switch/katamari-nx/katamari-nx.nro")
+    target_compile_definitions(rexcore PRIVATE REX_SWITCH_FALLBACK_EXE="/switch/ilomilo-nx/ilomilo-nx.nro")
 endif()
 
 # banjo-nx (2026-10-16): Renut's Direct3D-level renderer as a second renderer, chosen at boot (banjo_renderer = "renut";
