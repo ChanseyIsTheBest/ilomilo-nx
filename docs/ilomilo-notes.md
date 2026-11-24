@@ -500,6 +500,13 @@ the main target (the depth-of-field composite), then the HUD (alpha-blended stri
 `banjo_renut_smaa_after_ps = "0B4973CE2EEC601A"` (built-in settings and the package tomls): the PC's 10 s line then
 says "SMAA ... 600 frames" in gameplay. (Menus that draw no depth of field get no SMAA.)
 
+## Late input (2026-11-25)
+
+`banjo_late_input = true` (built in, and in every toml). It acts on the Switch build: emu22's `[latency]` lines (the
+first level, every 10 s): "late input: the first controller read of a frame delayed 5.4 ms on average (601 frames)",
+input -> swap 1.0 ms. These are an emulator's timings, so they are not compared with anything; the console's log has
+the same line.
+
 ## Smaller game files: Opus, H.265, LZ4 / ZXC (2026-11-25, the user's request via the Ridge Racer 6 session)
 
 The user: "re-encode their audio and video to opus and h265 and L4Z/ZXC stuff as a part of the progress". The method
