@@ -1,9 +1,7 @@
-# katamari-nx (Beautiful Katamari on the Switch, Renut's renderer on deko3d): renut.toml with an in-run A/B list, 30 s halves, target 1 as the control (a Vulkan-only key: nothing on the Switch)
-# Made by tools/make_katamari_tomls.py from banjo-nx's shipped renut.toml (2026-10-29). Copy over katamari.toml next to
-# the NRO, the only toml it reads (renut.toml with KATAMARI_BUILTIN_CONFIG off). Credits: reNut's renderer (masterspike52,
-# reuse permitted), banjo-nx, sa2-nx, NetherSX2_nx (four-core layout), battd_nx (the GPU arena), bejeweled3-nx and the zuma
-# ports (hot functions).
-# banjo-nx test config (Switch). Lines are cvars.
+# ilomilo-nx (ilomilo on the Switch, Renut's renderer on deko3d): dynamic resolution, 540-720 handheld / 720-1080 docked (not pixel-identical)
+# Made by tools/make_ilomilo_tomls.py from the ultimate base's shipped renut.toml. Copy over ilomilo.toml next to the
+# NRO, the only toml it reads. Credits: reNut's renderer (masterspike52, reuse permitted), the ultimate base and the ports
+# whose fixes it carries, renut-nx, sa2-nx, NetherSX2_nx, battd_nx, bejeweled3-nx and the zuma ports.
 
 # Renderer: the native Vulkan renderer (needs banjo_shaders.mesp and banjo_shaders.mesp.idx next to the NRO).
 # Set masseffect_renderer_native = false to fall back to ReXGlue's emulated Xbox 360 GPU (slow, reference image).
@@ -21,7 +19,7 @@ disable_msaa = false
 
 # Shaders the renderer cannot identify are written here once (raw microcode). Please send this folder back:
 # they get added to banjo_shaders.mesp (new areas of the game may have shaders the PC runs have not seen yet).
-banjo_shader_misses = "sdmc:/switch/katamari-nx/shader_misses"
+banjo_shader_misses = "sdmc:/switch/ilomilo-nx/shader_misses"
 
 # Logs go to logs/rex/ next to the NRO. Please send them back after a test.
 log_level = "info"
@@ -37,6 +35,9 @@ input_xbox_layout = true
 # controller, change the order, split a Joy-Con pair into two). Single Joy-Cons are held sideways, one per player: the
 # four buttons under the right thumb are the face buttons, SL / SR are ZL / ZR, minus or plus is Start.
 input_joycon_sideways = true
+# Rumble (2026-11-10, your request): the game's own vibration on every controller that has it (HD rumble on the
+# Joy-Cons and the Pro Controller). false = no vibration.
+input_rumble = true
 # Per-player button maps: the [input_p1] and [input_p2] sections at the end of this file.
 # The game's on-screen keyboard (naming things) opens the Switch's own keyboard (2026-10-21, your request): type with
 # the touch screen or the controller, + or OK accepts, Cancel keeps the old name. false = the old ImGui text box.
@@ -233,24 +234,7 @@ banjo_gpu_edram4_split_tiles = true
 
 # Hot game functions as native copies (2026-10-14; CPU group; docs/enhancements.md): eighteen functions of the game run
 # as copies that keep their work in the processor; each compares itself with the original and turns itself off if they differ.
-banjo_cpu_native_sub_82376878 = true
-banjo_cpu_native_sub_823769E8 = true
-banjo_cpu_native_sub_82B6B258 = true
-banjo_cpu_native_sub_82373F70 = true
-banjo_cpu_native_sub_821F9BB8 = true
-banjo_cpu_native_sub_822DA610 = true
-banjo_cpu_native_sub_82377E88 = true
-banjo_cpu_native_sub_823828A8 = true
-banjo_cpu_native_sub_82376450 = true
-banjo_cpu_native_sub_8222A1D0 = true
-banjo_cpu_native_sub_82378BC0 = true
-banjo_cpu_native_sub_82229110 = true
-banjo_cpu_native_sub_82382780 = true
 banjo_cpu_native_xaudio_src_m03 = true
-banjo_cpu_native_sub_82A02D00 = true
-banjo_cpu_native_sub_822216C8 = true
-banjo_cpu_native_sub_82376768 = true
-banjo_cpu_native_sub_82229C90 = true
 
 # Texture memory on the Switch (2026-10-22, the 36z6 crash in the town): the textures the renderer keeps for the GPU are
 # released when they have not been used for a while and the heap (one for everything on the Switch) has less than this
@@ -555,7 +539,7 @@ frame_cap = "Off"
 # night_gpu5 (the user's request): banjo_renut_dynamic_steps = 4 heights between the ends: handheld 540 576 612 648
 # 684 720, docked 720 792 864 936 1008 1080. Down goes to the highest that is predicted to fit, up to the highest
 # that fits with room (the log names each change). 0 = only the two ends.
-banjo_renut_dynamic_resolution = false
+banjo_renut_dynamic_resolution = true
 banjo_renut_dynamic_handheld_low = 540
 banjo_renut_dynamic_handheld_high = 720
 banjo_renut_dynamic_docked_low = 720
@@ -568,7 +552,7 @@ banjo_system_core_compiles = false
 banjo_system_core_uam = false
 banjo_system_core_xma = false
 banjo_system_core_mixer_priority = 45
-banjo_forwarder_program_id = "0100080021954000"
+banjo_forwarder_program_id = ""
 banjo_renut_host_packets = false
 banjo_renut_literals_resident = true
 banjo_renut_replay_lookahead = false
@@ -579,21 +563,16 @@ banjo_renut_clear_repeat = true
 banjo_deko3d_provisional_count = true
 banjo_renut_diag_terrain = true
 # Title update 3 (2026-10-29): banjo-nx is now the updated game (docs/title-update-3.md). The update's default.xexp
-# goes next to default.xex in game_root, its db_index.txt and 12 bundles in sdmc:/switch/katamari-nx/update/, and the
-# DLC package (optional) in sdmc:/switch/katamari-nx/dlc/. The native copies of game functions are called directly
+# goes next to default.xex in game_root, its db_index.txt and 12 bundles in sdmc:/switch/ilomilo-nx/update/, and the
+# DLC package (optional) in sdmc:/switch/ilomilo-nx/dlc/. The native copies of game functions are called directly
 # (no guard): the first update package's console session compared 215,000 calls of its 512 copies with the
 # game's own code under the guard and found 0 differences (2026-10-29; the user: guard off from then on).
 # renut_guard.toml is this file with the guard on (banjo_hot_guard_calls / banjo_hot_guard_period), for a check.
 renut_shadow_resolution = "1x"
 renut_ambient_occlusion = "Half"
-katamari_hand_matrix_copy = true
-katamari_hand_matrix_multiply = true
-katamari_hand_matrix_translation = true
-banjo_renut_ab_targets = "25,28,22,26,33,42,69,70,1"
-banjo_renut_ab_s = 30
-katamari_hand_sphere_box = false
 banjo_xma_frame_cache = false
-katamari_dlc_unlock_packs = false  # true: also load the accessory / character / special accessory packs
+msaa_level = 1
+license_mask = 1
 
 [input_p1]
 a = ""
