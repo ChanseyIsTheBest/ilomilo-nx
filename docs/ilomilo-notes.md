@@ -236,6 +236,61 @@ bangaio-nx found them; constants compared byte for byte):
   see this: it counts only calls still to convert). Check with a grep for `__imp__sub_<hooked address>(` in
   app/generated.
 
+## Stale mentions (2026-11-25; optimising-functions.md, "What to do next" 3)
+
+The copy tool's `Hooks` reads every source under `app/src` (and the SDK's): an address any of them names is never
+copied. Of ilomilo's function starts, 340 are named there, nearly all by the Direct3D hook files themselves (hooked,
+so not copies anyway: state.cpp 250, resource.cpp 39, device.cpp 27, draw.cpp 16, shader.cpp 5). The stale ones (a
+comment naming another game's address that happens to be an ilomilo function start) are about seven, in
+d3d_native_state.cpp, queued.cpp, d3d.h, render/draw.cpp, render/format.h and widescreen.cpp: negligible.
+
+## Movies (2026-11-25)
+
+ilomilo has one movie, `Data\media\upsell.wmv` (35 MB, WMV). The image names it next to the trial's screens
+(`game:\data\media\upsell.wmv` at 0x82004798 among `TrialSelect`, `Upsell`, `IngameTrial`, `UpsellMenuPage`): the
+XBLA trial's buy screen. The full game (`license_mask = 1`) does not play it. The WMV codec the base's Katamari hook
+replaces (app/src/cpu/katamari_wmv_ffmpeg.cpp, vivapinata-nx's method) is in ilomilo at the same spacing, function
+for function (`tools/d3d_best_match.py` against Katamari's image): status `823909F0`, GetData `82390AD0`, flush
+`82390D90` (1.000), destroy `82390DE8` (0.909), decode `82390E98`, get output `82390EF8`; the stream node's payload
+fetch is less sure (`823678C0`, 0.593). Not ported: nothing in the full game reaches it. Its file need not be in a
+player's package (the installer can leave it out).
+
+## Gameplay on the PC (2026-11-25)
+
+- `play1` (the diet build, Renut on Vulkan, 150 s, `--input_script` 15:START, A presses every 5 s to 100 s, the sticks
+  wandering from 110 s): the SouthEnd logo, the main menu (single player, multiplayer, gallery, leaderboards,
+  achievements, help & options, download content, exit), "select a story", the prologue's level card, the loading
+  screen with a tip, then the first level (from about 60 s), the sticks walking the character over the cubes. The whole
+  720 lines draw (the tiling hooks); 60 fps by vsync, about 157 draws a frame in gameplay; every self-check 0
+  differences (generated-code checks, r1 mirror, stack forwards, flush-mode flow); the DLC's sound bank (`dlc1.xwb`)
+  loads. No unregistered function, no missing shader, no crash.
+- Warnings: the game opens optional loose animation files (`animations\fx\*.pan` / `.trg`) that exist neither loose nor in
+  the archives (the Xbox's open fails the same way); `XamVoiceSetMicArrayIdleUsers` is a stub; slow first reads of the
+  wave banks on this PC.
+- Renderer census (porting-guide-renderer.md section 2): **100 % immediate draws** ("draw sources: 94,181 immediate, 0
+  replayed" per 10 s): no recorded command buffers, so the record-time items (setter marks, record-time objects, replay
+  stream) have nothing to act on; the per-draw fast path, whole-buffer copies, mesh objects and the chain's reuse do.
+  Each draw takes a whole device copy (1,157 MB per 10 s on the PC: the snapshot is 12,888 bytes).
+
+## CG-13's census (2026-11-25, `tools/cg13_census.ps1 -Seconds 300`, the gameplay script)
+
+`out/pc_runs/cg13_1`: 29 windows of 10 s, about 10,700-13,600 flush-mode switches a second in the game code (each an
+`msr fpcr` the Switch build leaves out). 20 windows met denormals, at most 196 regions and 3 any-mode cold paths a second.
+The sites (`tools/census_sites.py --denormal`):
+- `banjo::FormsSelfCheck` (73 % of the counts): its own deliberate denormals at start-up.
+- VMX code (`vmulfp128` in `sub_8222C910`, `sub_823178A0`, `sub_8222C6B0`; `vaddfp128` in `sub_8229FA38`; `vsubfp128`
+  in `sub_82258ED8`, `sub_822A5110`): the Xenon's VMX flushes denormals itself, so the one flush mode gives the same
+  results there.
+- `sub_822584E8` (36 counts in 300 s): `lfs` / `stfs` copies of single floats into a stack block that it then loads
+  with `lvx` into VMX math (16-bit vertex data written to r17 beside it): a denormal flushed by the copy would be flushed
+  by the VMX on the Xenon anyway. Same result.
+- `sub_821B31C8` (2 counts): a setter storing its float arguments into an object (`stfs f1,4(r3); stfs f2,8(r3)`, f3 /
+  f4 by flags), called from the game's code around 0x82112xxx: twice a value below FLT_MIN that the Switch build stores
+  as 0. A value decaying to zero; no division or guard by it was seen.
+
+**Verdict: keep `BLUR_FPCR_ONE_MODE` ON for the Switch (the base's default).** Run it again after a large change to the
+code generation, and in the later levels (the DLC's) once a script reaches them.
+
 ## Shaders (2026-11-24)
 
 - `tools/renut_shader_dump.py` on the image: 83 containers (69 vertex, 14 pixel): Direct3D's, XUI's and the video

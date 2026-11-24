@@ -53,6 +53,13 @@ SHIPPED = {
     'banjo_shader_misses': '"sdmc:/switch/ilomilo-nx/shader_misses"',
     # The XBLA licence: the full game (XamContentGetLicenseMask answers "bought"; the SDK's default 0 is the trial).
     'license_mask': '1',
+    # SMAA after ilomilo's final composite (the depth-of-field pass, docs/ilomilo-notes.md).
+    'banjo_renut_smaa_after_ps': '"0B4973CE2EEC601A"',
+    # The four keys decided from this port's log (gameplay windows; docs/ilomilo-notes.md).
+    'ultimate_renut_replay_inherit_same': 'false',
+    'sasrt_gpu_skip_inert_draws': 'false',
+    'banjo_renut_tags_check': '256',
+    'banjo_renut_stream_redeem': 'false',
 }
 # Katamari's own keys in the base's file (its hand natives and its DLC switch), not in this port.
 DROP = re.compile(r'^\s*(katamari_\w+|banjo_cpu_native_sub_\w+)\s*=.*$\n?', re.M)

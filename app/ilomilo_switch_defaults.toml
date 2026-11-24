@@ -10,6 +10,19 @@ msaa_level = 1
 banjo_renut_render_height_docked = 720
 banjo_renut_display_height_docked = 720
 banjo_forwarder_program_id = ""
+# SMAA (banjo_renut_smaa, on in the base) after ilomilo's final composite: the depth-of-field pass back into the
+# 1280x720 target (pixel shader 0B4973CE2EEC601A, the last full-screen draw before the HUD in both logged gameplay
+# frames: docs/ilomilo-notes.md, "SMAA").
+banjo_renut_smaa_after_ps = "0B4973CE2EEC601A"
+# The four keys decided from this port's own log in gameplay windows (the base's render-thread-turn-offs.md, port 177;
+# docs/ilomilo-notes.md, "The four log-decided keys"): ilomilo records no command buffers (100 % immediate draws), so
+# no replay inherits words and no chunk changes without a mark; no draw was inert; no stream was redeemed.
+ultimate_renut_replay_inherit_same = false
+sasrt_gpu_skip_inert_draws = false
+banjo_renut_tags_check = 256
+banjo_renut_stream_redeem = false
+# Feeds only the 10 s report's libnx line (the player's settings have no log).
+switch_perf_count_calls = false
 license_mask = 1  # the full game: the XBLA licence (XamContentGetLicenseMask) answers "bought"
 gpu_plugin = ""
 masseffect_renderer_native = false

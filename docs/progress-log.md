@@ -20,3 +20,15 @@ Times are AEST. The session runs until 23:04 on Wednesday 25 November 2026; no c
   build, glslang and the deko3d host tools in out/: all copied from the base's working tree, which git ignores).
 - Ryujinx data folder `D:\New folder\ryu-data\ilomilo` made (bis, system, profiles, Config.json from katamari's; its
   own SD with `switch\ilomilo-nx\game_root` -> D:\ilomilo\game and `dlc` -> the DLC package's folder).
+
+## 2026-11-25
+
+- 00:08 First PC boot with Renut (D3D12, then Vulkan): title screen, 60 fps, self-checks 0 differences; only the top
+  256 lines drawn. RenderDoc (out/rdc/title1): the scene's targets are 1280x256: ilomilo draws 720 lines with 4x MSAA in
+  three predicated tiles. BeginTiling / EndTiling found at XDK 20209 (sub_82215D10 / sub_82216378) and hooked; the
+  calls still went around the hooks (direct_calls.py) until post_codegen ran again: tools/hook_bypass_check.py written.
+- 00:20 Menu flow from a scripted run (title, START, select a story, A through the story intro, the prologue card).
+- 00:25-00:55 Switch side's game layer: ilomilo_switch*.toml, ilomilo.toml, the icon, version 0.1.0, the package tomls
+  (tools/make_ilomilo_tomls.py) and README; Katamari's DLC pack list out. The calling-convention censuses clean. The
+  register diet audited and turned on (keep list 125, two share_registers). The movie is the trial's upsell only.
+- Poker Smash's first build (from 00:17) holds the build slot; my rebuild waits for its "done".

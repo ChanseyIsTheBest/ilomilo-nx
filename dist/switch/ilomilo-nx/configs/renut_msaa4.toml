@@ -573,6 +573,11 @@ renut_ambient_occlusion = "Half"
 banjo_xma_frame_cache = false
 msaa_level = 4
 license_mask = 1
+banjo_renut_smaa_after_ps = "0B4973CE2EEC601A"
+ultimate_renut_replay_inherit_same = false
+sasrt_gpu_skip_inert_draws = false
+banjo_renut_tags_check = 256
+banjo_renut_stream_redeem = false
 
 [input_p1]
 a = ""
