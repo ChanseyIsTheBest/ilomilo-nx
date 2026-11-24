@@ -39,3 +39,18 @@ Times are AEST. The session runs until 23:04 on Wednesday 25 November 2026; no c
   no saving. Handoffs 1-3 written in D:\ilomilo\out (gamma Flags at 5632, hook_bypass_check.py, installer deflate_raw).
 - The installer copy (D:\ilomilo\ilomilo-nx-installer) made: ilomilo's game.json (title update and DLC), icon,
   the 16 shader records (tools/ilomilo_shader_records.py, checked by decoding).
+- 01:58 First Switch NRO (43.0 MB). 02:06-02:11 emu2 (Ryujinx 330 s): boots, DLC installed, the title's assets load,
+  but only 5 frames end on the render thread and no game-thread 10 s report comes (no Swap reached), while about
+  8,100 game frames' draws arrive: no capture. Next: emu3 with the stall watchdog on (out/emu_tomls/emu_stall.toml).
+- 02:30 tools/package_switch.ps1 made ilomilo's (names, ilomilo.toml from app/ilomilo_switch.toml, no forwarder NPDM).
+- 02:41-02:45 emu3 (Ryujinx 200 s, stall watchdog): the main thread is busy in the game loop and drawing, never at
+  the present; only 2 frames. The per-frame function sub_82193768 (its tail calls the present through slot 0x44 of
+  the object at 0x82645070) and several copies on the drawing path are in-place bulk copies; the PC ran the same 90
+  copies hooked and guarded at 60 fps. Next: every bulk copy `off` (out/localized_bulk_all_on.txt keeps the list),
+  post_codegen with tools/keep_mtimes.py around it (only the copy shards rebuild), a Switch build and an emulator run.
+- 03:02-03:20 emu4 (every copy off: same stall, copies cleared), emu5 (the diagnostic's std::thread: std::terminate on
+  the Switch), emu6 (ilomilo_frame_diag with a pthread): the game loop runs ~500 frames/s and renders each frame, the
+  present routine ran twice; the scene render presents only while the render device's suspended flag
+  [0x826B71FC] is 0, so the device was suspended after frame 2 and never resumed. The diagnostic now logs each device
+  Suspend/Resume with its caller and sub_82365B50's entry/exit; waiting for a slot. Handoff 4 (Ryujinx's rexglue logs
+  in /switch/, the runner collects them) in D:\ilomilo\out.

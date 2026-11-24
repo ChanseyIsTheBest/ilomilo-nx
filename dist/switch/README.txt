@@ -47,5 +47,5 @@ sdmc:/atmosphere/contents/<id>/exefs/main.npdm, and the next launch has CPU 0-3.
 
 Profiling
 ---------
-The ELF (ilomilo-nx.elf) and the source snapshot (source/) are the ones this NRO was built from: a console profile
+The ELF (ilomilo-nx.elf) and the source snapshot (source_<commit>.tgz) are the ones this NRO was built from: a console profile
 (configs/renut_profile.toml: logs/rex/rex_profile.log) maps to source lines with them.

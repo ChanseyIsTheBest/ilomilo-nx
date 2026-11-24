@@ -234,6 +234,8 @@ set(RENUT_SOURCES
     src/cpu/banjo_forms_selfcheck.cpp
     # blur-nx (2026-11-11, port 90): timings of a few processor forms at boot (blur_microbench, off).
     src/cpu/blur_microbench.cpp
+    # ilomilo-nx (2026-11-25): the emulator frame stall's diagnostic (ilomilo_frame_diag, off).
+    src/cpu/ilomilo_frame_diag.cpp
     # ilomilo-nx: Katamari's stage diagnostic and its movie hook (src/cpu/katamari_wmv_ffmpeg.cpp, at Katamari's
     # addresses) are not built; ilomilo's own movie hook, at its WMV codec's addresses, is docs/ilomilo-notes.md's
     # "Movies".

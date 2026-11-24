@@ -331,6 +331,58 @@ Hand-written natives: none (they need console profile data past the gate).
   with Windows PowerShell's `Set-Content -Encoding utf8` carry a UTF-8 BOM (Python's tomllib refuses it at line 1); the
   built-in settings file had one (stripped; toml++ skips a BOM, so the NRO read it). `tools/make_emu_toml.py` now makes
   the test tomls with the keys set in place and checks them with tomllib first.
+- `emu2` (Ryujinx, 330 s, `out/emu_tomls/emu_verify.toml`): the log came back. The game boots, installs the DLC,
+  reads its archives and loads the title's models and textures, but the frames stop: the render thread ends 5 frames
+  in the whole run ("GPU profile ... over 5 frames"), the game thread's 10 s report (built at each Swap,
+  `StatsGameFrame`) never appears, and every capture finds no picture. Draws keep coming all the same: per "frame",
+  1,628 of the depth-of-field composite (0B4973CE2EEC601A, one a game frame on the PC) and 89,518 of the scene's
+  main shader, so about 8,100 whole game frames were drawn that never reached Renut's Swap. With no frame end the
+  command memory is never recycled: 1.5 GB of deko3d blocks, four "long frame splits", and Ryujinx's "GPU processing
+  thread is too slow" / "WaitOnSyncpoint ... took more than 1000ms" follow from that. All three Swap call sites in the
+  generated code call the hook (`sub_82215280`, linked from device.cpp in the Switch map; the game's present routine
+  `sub_821F33E8` is generated code, not a machine copy). Next: a run with the stall watchdog on
+  (`out/emu_tomls/emu_stall.toml`: `banjo_stall_watch_seconds = 5`, its wait lists) to see where the game thread is.
+- `emu3` (Ryujinx, 200 s, the stall watchdog on). In Ryujinx the NRO's argv[0] has no folder, so the log folder of the
+  crash and profiler logs (`RexSwitchLogDir`, logs/rex next to the NRO) is never set: the watchdog writes
+  `banjo_profiler.log` to the process's working folder, the emulator SD's `/switch/`, and its on-demand trigger is
+  `sdmc:/switch/stall_dump` (its first line says so; `tools/ryujinx_stall_dumps.ps1` wrote it in the wrong place). Its
+  dumps (named with `tools/switch-cpu-profile.py`, devkitA64's nm on PATH; `out/emu_runs/emu3/profiler_named.txt`):
+  2 frames so far; the guest **main** thread is not blocked: 1.8-2.0 s of CPU in each 2 s, in the game loop and
+  drawing: `xstart` -> sub_82110040 -> sub_820EFDC8 -> sub_821CE4F8 -> sub_821AB3C8 -> sub_82193768 -> sub_821F15B8
+  (a call through slot 0x44 of the global object at 0x826ACC58) -> the in-place copy of sub_820F3040 -> sub_820C85E0
+  -> the copy of sub_820C6010 -> sub_82204560 ... -> the DrawPrimitive hook -> QueueDraw. Several bulk machine copies
+  are on that path (sub_820F3040, sub_820C6010, sub_82198448, sub_820B9270, sub_821D04F0, sub_8218BB58), and the PC
+  ran the same 90 copies (hooked, guarded: guard1, 60 fps) where the Switch runs them in place: the copies are the
+  first suspect. Test: every bulk entry marked `off` (the original list kept in `out/localized_bulk_all_on.txt`), only
+  the copy shards and the link rebuilt; then a bisect if the frames come back.
+- `emu4` (every bulk copy `off`; post_codegen with `tools/keep_mtimes.py` around it: 328 generated files unchanged
+  and given their old times back, only the 12 shards rebuilt, a 2-minute build): the same stall (2 frames). **The
+  copies are not the cause**; the list is back to all 90 (the shards stay `off` until the next post_codegen).
+- `emu6` (`ilomilo_frame_diag`, app/src/cpu/ilomilo_frame_diag.cpp, a key, off by default: counts ilomilo's render
+  routine sub_821F15B8 and present routine sub_821F33E8, logs guest words every 2 s from a pthread; `emu5` ended in
+  `std::terminate` because `std::thread` throws "Function not implemented" on the Switch): the game loop runs about
+  500 frames a second (its frame time advances in real time, the render routine is called each frame), the present
+  routine has run twice, and the render device pointer [0x82645070] is set. The game renders and then chooses not to
+  present. The reason, from the code: the scene render (sub_820F3040) ends with `if (!device->slot_0xFC())
+  device->slot_0x108()`; slot 0xFC (sub_821F3168) returns the render device's **suspended flag** [0x826B71FC], which
+  its Suspend (slot 0xF4, sub_821F3098: D3D's device suspend sub_8220E458, then 1) sets and its Resume (slot 0xF8,
+  sub_821F3100: sub_8220E4F0, then 0) clears. So after two frames something suspends the render device and never
+  resumes it in the emulator. Candidates: the routine sub_82365B50 (it suspends and resumes guest threads, takes the
+  device's thread ownership and presents through D3DDevice_Present itself) and its module (0x82363xxx-0x82365xxx:
+  sub_823655D8, sub_82363308, sub_82363150 call slot 0xF4); Ryujinx refused its thread suspend and resume
+  (`SetThreadActivity() = InvalidHandle`, logged at the scripted presses). Next: the diagnostic logs each Suspend /
+  Resume with its caller and sub_82365B50's entry and exit (built, waiting for a slot).
+- `emu7`: one device Suspend, at 16.7 s on the main thread (the one that made the D3D device and registers the
+  notification listeners), never a Resume; sub_82365B50 never runs (the guest LR reads 0 here: the diet elides the LR
+  saves, so the next diagnostic takes the host stack with `_Unwind_Backtrace`). The code that does it is the scene
+  render's state 0 (the start-up logo; sub_820F3040 at 0x820F31A4, the object at [0x826ACC58], its state at +16):
+  each frame it first resumes the device once `TickCount - [state+40] > 1000` (TickCount: KeTimeStampBundle's, the
+  import at 0x820005E4, +16, read by sub_8218FBE8; [state+40]: the TickCount at the state's entry, sub_820F5358), then
+  draws the logo unless suspended, and on its 2nd frame presents and suspends (0x820F3300: the logo held on screen
+  for a second while loading goes on). So in the emulator the tick count never gets 1000 past the stamp. The SDK
+  refreshes it from `Clock::QueryGuestUptimeMillis()` with a repeating timer (`kernel_timestamp_interval_ms`; the
+  emulator's rex_profile shows the timer firing about 100 times a second). Next run: the diagnostic logs the
+  TickCount, the state and the stamp every 2 s.
 
 ## SMAA (2026-11-25)
 
