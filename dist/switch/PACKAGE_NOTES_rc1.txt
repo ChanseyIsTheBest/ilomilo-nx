@@ -11,7 +11,9 @@ What this NRO is
 What was tested, and how (no console was used)
 ----------------------------------------------
 - PC (Vulkan): boots, menus, the story intro and the first level played by an input script at 60 fps; the machine
-  copies checked against the generated code on every call (tools/run_pc_verify.ps1: 0 differences, see docs).
+  copies checked against the generated code on every call (tools/run_pc_verify.ps1): the first 90 with 0
+  differences (guard1); the 46 added on 2026-11-25 from Ryujinx profiles: VERIFY RUN PENDING (docs/ilomilo-notes.md
+  has the result once it ran).
 - Ryujinx (the everyday NRO with the same code): logo, title, menus, loading, the first level at 56-60 fps (an
   emulator's figure, not the console's). The emulator's picture fault (coloured wedges in the depth-of-field passes)
   is fixed (ilomilo_renut_gs_no_clip); on the console those draws already had their clip slot off.
