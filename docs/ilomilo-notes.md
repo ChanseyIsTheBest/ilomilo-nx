@@ -527,7 +527,10 @@ write under out/media and D:\ilomilo\game_media (game data: never committed).
   wrapper (decode sub_82390E98, get output sub_82390EF8, flush sub_82390D90, destroy sub_82390DE8, GetData
   sub_82390AD0, status sub_823909F0; the interface filler sub_82391478 stores them at Katamari's offsets; reached
   only through that interface: no regeneration needed). PC test with culdcept-nx's `tools/hevc_movie.py` (NVENC):
-  35.2 -> 13.4 MB (38.1 %, 2,519 frames). The full game never plays it (trial only); not built yet.
+  35.2 -> 13.4 MB (38.1 %, 2,519 frames). The full game never plays it (trial only). Built since the 05:29 NRO
+  (Switch only: RENUT_NXVIDEO). Its Ryujinx test: trial mode (`license_mask = 0`), software H.265
+  (`ilomilo_movie_nvdec = 0`: Ryujinx emulates no H.265 NVDEC), the SD's game_root on D:\ilomilo\game_media
+  (tools/ryujinx_game_root.ps1), out/emu_tomls/emu_trial.toml.
 - **Packing** (measured with the installer's own codecs, `out/media/pack_measure.txt`): textures LZ4 55.5 % (ZXC
   no smaller), fonts ZXC 60 %, the PCM bank ZXC 74 % when it is not `.opcm`, the `.par` (deflated), PNGs and the
   executables as they are; the rest LZ4. The XMA banks pack to 98 %: their `.xmop` stays unpacked (the 5 % rule).
