@@ -84,3 +84,14 @@ Times are AEST. The session runs until 23:04 on Wednesday 25 November 2026; no c
   emu22: **the picture is whole in Ryujinx** (logo, title backdrop, loading card, the first level's sky), 56-60 fps.
   Handoff 6 completed with the results. 11 more copies from emu22's profile (136 on the list). Poker Smash has the
   machine (~40 min: PC build and run, Switch build, Ryujinx run).
+- 06:55-07:25 Trial-mode runs on the media folder (emu23-emu25: Opus banks play; the upsell page not reached: the
+  menus read queued key events). The user's rule via the Ridge Racer 6 session: two builds and one Ryujinx run at a
+  time, a run may overlap builds. PC build (two Windows-only breaks in ilomilo_frame_diag.cpp fixed).
+- 07:30-07:46 Release shader files, tools/ilomilo_build_switch_release.bat (no PGO / LTO), the release NRO (13 min,
+  43.8 MB), the DKSH cache (293 variants, 0 failed), the installer's release (make_release.py 0.1.0).
+- 07:50-08:05 full_node.mjs --opus --reference (2 min) and check_zip.py (now checks .opcm): OK; installer commit
+  032c89b. emu26 (release NRO, trial). The user: "Make sure the game runs in non trial mode": license_mask = 1 is
+  built in and in every toml; emu27 (release NRO, the player's default toml): the full game's menus and the first
+  level. tools/run_pc.ps1 passes --license_mask=1. Trial-mode tests stopped (the movie is trial-only).
+- 08:06-08:16 verify2 (PC, 240 s): 133 of 133 copies, 137.1 million calls compared, 0 differences. rc1 packaged:
+  D:\ilomilo\builds\2026-11-25_0814_rc1 (NRO md5 7d0a3611..., commit b700369b; no personal details, no game data).
