@@ -21,7 +21,9 @@
 #include <chrono>
 #include <cstring>
 #include <fmt/format.h>
+#if !defined(_WIN32)
 #include <pthread.h>
+#endif
 #include <string>
 #include <thread>
 #include <unwind.h>
@@ -74,16 +76,21 @@ void Reporter() {
 }
 
 // A pthread: std::thread throws std::system_error ("Function not implemented") on the Switch's libstdc++ (the first
-// run of this diagnostic ended in std::terminate there).
+// run of this diagnostic ended in std::terminate there). Windows has no pthread.h: std::thread there.
+#if !defined(_WIN32)
 void* ReporterEntry(void*) {
   Reporter();
   return nullptr;
 }
+#endif
 
 void StartReporter() {
   static std::atomic<bool> started{false};
   if (started.exchange(true, std::memory_order_relaxed))
     return;
+#if defined(_WIN32)
+  std::thread(Reporter).detach();
+#else
   pthread_t thread;
   pthread_attr_t attr;
   pthread_attr_init(&attr);
@@ -93,6 +100,7 @@ void StartReporter() {
   else
     REXLOG_WARN("[ilomilo_frame_diag] the reporter thread could not start");
   pthread_attr_destroy(&attr);
+#endif
 }
 
 }  // namespace
