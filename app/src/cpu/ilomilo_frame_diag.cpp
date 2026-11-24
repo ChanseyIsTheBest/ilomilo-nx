@@ -26,7 +26,9 @@
 #endif
 #include <string>
 #include <thread>
+#if !defined(_WIN32)
 #include <unwind.h>
+#endif
 
 REXCVAR_DEFINE_BOOL(ilomilo_frame_diag, false, "ilomilo/Diagnostics",
                     "Log every 2 s how often ilomilo's render (sub_821F15B8) and present (sub_821F33E8) routines ran "
@@ -172,10 +174,12 @@ bool LogMore() {
 // The guest LR is not kept by this codegen (the diet elides the LR saves), so the caller is named from the host stack:
 // the recompiled functions' native return addresses, logged as offsets from this function's own address (the ELF
 // gives its address: aarch64-none-elf-nm app/out/switch/renut | grep HostStackAnchor).
+// Windows: no unwinder linked (lld-link has no _Unwind_Backtrace), so no frames there.
 struct Frames {
   uintptr_t pc[32];
   int n = 0;
 };
+#if !defined(_WIN32)
 _Unwind_Reason_Code Collect(struct _Unwind_Context* context, void* arg) {
   auto* f = static_cast<Frames*>(arg);
   if (f->n >= 32)
@@ -183,6 +187,7 @@ _Unwind_Reason_Code Collect(struct _Unwind_Context* context, void* arg) {
   f->pc[f->n++] = uintptr_t(_Unwind_GetIP(context));
   return _URC_NO_REASON;
 }
+#endif
 }  // namespace
 
 extern "C" [[gnu::noinline]] void HostStackAnchor() {
@@ -192,7 +197,9 @@ extern "C" [[gnu::noinline]] void HostStackAnchor() {
 namespace {
 void LogHostStack(const char* what) {
   Frames f;
+#if !defined(_WIN32)
   _Unwind_Backtrace(Collect, &f);
+#endif
   std::string line;
   const uintptr_t anchor = uintptr_t(&HostStackAnchor);
   for (int i = 0; i < f.n; ++i)
