@@ -8220,10 +8220,27 @@ PipelineKey MakeKey(const GuestDevice &device, const ShaderRecord *vs, const Sha
   key.stencil_ref_mask = depth_words ? u32(dev.m_ValuesPacket.StencilRefMask) & 0xFFFFFF : 0;
   key.stencil_ref_mask_bf = depth_words ? u32(dev.m_ValuesPacket.StencilRefMaskBF) & 0xFFFFFF : 0;
   key.mode_control = u32(cp.ModeControl) & 0x7;
+  // ilomilo-nx (2026-11-25, ilomilo_renut_clip_disable): PA_CL_CLIP_CNTL's clip_disable (bit 16), the guest's clipping
+  // off: the pipeline clamps depth instead of clipping it (pipeline.cpp; bit 3 of mode_control, which keeps bits 0-2 of
+  // PA_SU_SC_MODE_CNTL, so older pipeline lists have it clear). ilomilo's depth-of-field passes draw rectangles exactly on
+  // the far plane (z = w = 1); in Ryujinx part of them was clipped there (RenderDoc: "depthClipped"), leaving the last
+  // frame's pixels in wedges.
+  if (banjo::renut_gpu::IlomiloClipDisableOn() && (u32(cp.ClipControl) & 0x10000u))
+    key.mode_control |= 8u;
   key.alpha_to_coverage = (u32(cp.ColorControl) >> 4) & 1;
   if (primitive == kRectangleList) {
     if (State().rectangle_list_gs)
       key.rectangle_list = 1;
+    {
+      // ilomilo-nx (2026-11-25): which clip control the rectangle lists come with (the first 8 values).
+      static u32 seen[8];
+      static u32 seen_count = 0;
+      const u32 clip = u32(cp.ClipControl);
+      if (seen_count < 8 && std::find(seen, seen + seen_count, clip) == seen + seen_count) {
+        seen[seen_count++] = clip;
+        RGPU_INFO("[ilomilo] a rectangle list with PA_CL_CLIP_CNTL {:08X} (clip_disable {})", clip, (clip >> 16) & 1);
+      }
+    }
     // Rectangles are not culled. N&B's D3D clears through rectangles
     // (ClearRects_D3D, 0x821D3D20) whose corners run clockwise on screen, under
     // whatever cull mode the game left set: with back faces culled and

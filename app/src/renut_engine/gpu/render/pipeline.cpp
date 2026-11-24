@@ -343,7 +343,9 @@ std::unique_ptr<plume::RenderPipeline> Build(const PipelineKey &key, const Pipel
                                              : plume::RenderCullMode::NONE;
   desc.frontFace = (key.mode_control & 4) ? plume::RenderFrontFace::CLOCKWISE
                                           : plume::RenderFrontFace::COUNTER_CLOCKWISE;
-  desc.depthClipEnabled = true;
+  // ilomilo-nx (2026-11-25, ilomilo_renut_clip_disable): mode_control bit 3 is the guest's clip_disable (MakeKey): depth
+  // clamped there instead of clipped.
+  desc.depthClipEnabled = !(key.mode_control & 8u);
   // rr6-nx (2026-11-03, rr6_depth_bias): set per draw (SetDrawDepthBias), so no value of it makes a pipeline.
   desc.dynamicDepthBiasEnabled = banjo::renut_gpu::DepthBiasOn() && s.device->getCapabilities().dynamicDepthBias;
 

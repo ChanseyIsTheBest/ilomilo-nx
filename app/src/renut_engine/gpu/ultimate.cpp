@@ -162,6 +162,13 @@ REXCVAR_DEFINE_BOOL(halo3_renut_loop_constants, true, "Banjo/Enhancements",
     .lifecycle(rex::cvar::Lifecycle::kInitOnly);
 
 // rr6-nx (2026-11-03, 45bbd0e09c) and vivapinata-nx (f346dd4963), for every vertex shader here.
+// ilomilo-nx (2026-11-25): PA_CL_CLIP_CNTL's clip_disable honoured (render/draw.cpp MakeKey, render/pipeline.cpp).
+REXCVAR_DEFINE_BOOL(ilomilo_renut_clip_disable, true, "Banjo/Enhancements",
+                    "From ilomilo-nx: a draw whose PA_CL_CLIP_CNTL has clip_disable (bit 16) set is not clipped at the "
+                    "near and far planes: its depth is clamped instead, as the Xenos does not clip it. Before, every draw "
+                    "was clipped: rectangles drawn exactly on the far plane lost pieces where rounding put them past it "
+                    "(ilomilo's depth-of-field passes in Ryujinx). Off: every draw clipped, as before")
+    .lifecycle(rex::cvar::Lifecycle::kInitOnly);
 REXCVAR_DEFINE_BOOL(rr6_user_clip_plane, true, "Banjo/Enhancements",
                     "From rr6-nx and vivapinata-nx: the game's user clip plane 0 (SetClipPlane, PA_CL_CLIP_CNTL bit 0) reaches the "
                     "vertex shaders, as the GPU clips with it (Ridge Racer 6's car reflections, Viva Pinata's water). Every vertex "
@@ -474,6 +481,10 @@ bool LoopConstantsOn() {
 }
 bool UserClipPlaneOn() {
   static const bool on = REXCVAR_GET(rr6_user_clip_plane);
+  return on;
+}
+bool IlomiloClipDisableOn() {
+  static const bool on = REXCVAR_GET(ilomilo_renut_clip_disable);
   return on;
 }
 bool TextureSignsOn() {
