@@ -486,6 +486,9 @@ Hand-written natives: none (they need console profile data past the gate).
     capture (out/emu_runs/emu22_sheet.png); 56-60 fps; no error beyond the 894 `ResolvePath ... device not found`
     lines every run has (the game probing device paths). The Switch-only picture fault was Ryujinx clipping on the
     geometry shader's undefined clip distance; the console was expected clean before and is unchanged by the fix.
+    The PC is unchanged too: constant 929 exists only in the deko3d GLSL (tools/deko3d_glsl_opt.py pass clipspec),
+    so the PC's vertex shaders still write their distance, 0 for a draw without a plane (clips nothing); the no-clip
+    GS writes none (clips nothing either), and a draw with a plane keeps the usual GS (key bit 3 set).
     Handoff 6 for the base (D:\ilomilo\out).
 
 ## SMAA (2026-11-25)
