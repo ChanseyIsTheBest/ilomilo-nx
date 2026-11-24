@@ -992,29 +992,28 @@ if(REXGLUE_PLATFORM_SWITCH)
     # it is missing (DefaultConfigFile). KATAMARI_BUILTIN_CONFIG=OFF: test builds that read a full renut.toml.
     option(KATAMARI_BUILTIN_CONFIG "Switch: the fixed settings compiled in, the player's options in katamari.toml" ON)
     if(KATAMARI_BUILTIN_CONFIG)
-        file(READ "${CMAKE_CURRENT_SOURCE_DIR}/katamari_switch_defaults.toml" KATAMARI_BUILTIN_TEXT)
-        file(READ "${CMAKE_CURRENT_SOURCE_DIR}/katamari_switch.toml" KATAMARI_PLAYER_TEXT)
+        # ilomilo-nx: the game's own files (the macro and header names stay the base's).
+        file(READ "${CMAKE_CURRENT_SOURCE_DIR}/ilomilo_switch_defaults.toml" KATAMARI_BUILTIN_TEXT)
+        file(READ "${CMAKE_CURRENT_SOURCE_DIR}/ilomilo_switch.toml" KATAMARI_PLAYER_TEXT)
         configure_file("${CMAKE_CURRENT_SOURCE_DIR}/src/katamari_builtin_config.h.in"
                        "${CMAKE_CURRENT_BINARY_DIR}/builtin_config/katamari_builtin_config.h" @ONLY)
         target_include_directories(renut PRIVATE "${CMAKE_CURRENT_BINARY_DIR}/builtin_config")
         target_compile_definitions(renut PRIVATE KATAMARI_BUILTIN_CONFIG=1)
         set_property(DIRECTORY APPEND PROPERTY CMAKE_CONFIGURE_DEPENDS
-                     "${CMAKE_CURRENT_SOURCE_DIR}/katamari_switch_defaults.toml"
-                     "${CMAKE_CURRENT_SOURCE_DIR}/katamari_switch.toml")
+                     "${CMAKE_CURRENT_SOURCE_DIR}/ilomilo_switch_defaults.toml"
+                     "${CMAKE_CURRENT_SOURCE_DIR}/ilomilo_switch.toml")
     endif()
-    set(RENUT_ICON "${CMAKE_CURRENT_SOURCE_DIR}/../tools/switch/icon/katamari_icon.jpg")
+    # ilomilo-nx: an icon of its own (tools/switch/icon/ilomilo_icon.jpg, plain text made for this port: no game art).
+    set(RENUT_ICON "${CMAKE_CURRENT_SOURCE_DIR}/../tools/switch/icon/ilomilo_icon.jpg")
     set(RENUT_ICON_ARG)
     if(EXISTS "${RENUT_ICON}")
         set(RENUT_ICON_ARG ICON "${RENUT_ICON}")
     endif()
-    # katamari-nx (2026-11-02, the user's request): author ChanseyIsTheBest, the user's icon (the cover art).
-    # 2026-11-05: version 1.0.1, the game's memory and the NRO's code on 2 MB blocks, and the boot's cvars.
-    # 2026-11-24 (the user: "make nro 1.0.2"): version 1.0.2, the H.265 / Opus / LZ4-ZXC media, the installer's VFS
-    # index, the DLC read in place and the collection screen's tile fix.
+    # ilomilo-nx (2026-11-25): author ChanseyIsTheBest (the base's), version 0.1.0 (the first test packages).
     rexglue_switch_add_nro(renut
         NAME "${RENUT_GAME_NAME}"  # port 193: set once, above
         AUTHOR "ChanseyIsTheBest"
-        VERSION "1.0.2"
+        VERSION "0.1.0"
         ${RENUT_ICON_ARG})
 endif()
 

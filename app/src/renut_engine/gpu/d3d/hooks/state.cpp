@@ -61,8 +61,8 @@ void ViewportLogAfter(const char *what, u32 device) {
   const u32 tl = d.W(native::off::WindowScissorTL), br = d.W(native::off::WindowScissorBR);
   RGPU_INFO("[vplog]   after {}: viewport {} {} {} {} | scissor rect {} {} {} {} test {} | window {},{} - {},{} | "
             "vport x {} + {} y {} + {}",
-            what, f(0x3160), f(0x3164), f(0x3168), f(0x316C), i32(d.W(0x317C)), i32(d.W(0x3180)), i32(d.W(0x3184)),
-            i32(d.W(0x3188)), d.W(0x2E48), tl & 0x7FFF, (tl >> 16) & 0x7FFF, br & 0x7FFF, (br >> 16) & 0x7FFF,
+            what, f(0x3218), f(0x321C), f(0x3220), f(0x3224), i32(d.W(0x3234)), i32(d.W(0x3238)), i32(d.W(0x323C)),  // ilomilo-nx: 0x3160->0x3218, 0x3164->0x321C, 0x3168->0x3220, 0x316C->0x3224, 0x317C->0x3234, 0x3180->0x3238, 0x3184->0x323C
+            i32(d.W(0x3240)), d.W(0x2F00), tl & 0x7FFF, (tl >> 16) & 0x7FFF, br & 0x7FFF, (br >> 16) & 0x7FFF,  // ilomilo-nx: 0x3188->0x3240, 0x2E48->0x2F00
             f(0x2908), f(0x290C), f(0x2910), f(0x2914));
 }
 
@@ -137,9 +137,9 @@ void D3DDevice_GetViewport_hook(u32 device, mapped_u32 viewport) {
   if (!d || !viewport)
     return;
   for (u32 i = 0; i < 4; ++i)  // fctidz, the low word
-    viewport[i] = u32(native::TruncateToI64(d.F(0x3160 + i * 4)));  // katamari-nx: 0x3170->0x3160
-  viewport[4] = d.W(0x3170);  // katamari-nx: 0x3180->0x3170
-  viewport[5] = d.W(0x3174);  // katamari-nx: 0x3184->0x3174
+    viewport[i] = u32(native::TruncateToI64(d.F(0x3218 + i * 4)));  // katamari-nx: 0x3170->0x3160 (ilomilo-nx: 0x3160->0x3218)
+  viewport[4] = d.W(0x3228);  // katamari-nx: 0x3180->0x3170 (ilomilo-nx: 0x3170->0x3228)
+  viewport[5] = d.W(0x322C);  // katamari-nx: 0x3184->0x3174 (ilomilo-nx: 0x3174->0x322C)
 }
 
 // void D3DDevice_SetClipPlane(D3DDevice*, DWORD Index, const float *pPlane) [0x826370E8]
@@ -220,7 +220,7 @@ void D3DDevice_SetPixelShaderConstantI_hook(u32 device, u32 start, mapped_u32 da
 void D3DDevice_EndIndexedVertices_hook(u32 device) {
   native::Device d = native::DeviceAt(device);
   if (d)
-    d.SetW(native::off::Ring, d.W(0x3474));  // katamari-nx: 0x3484->0x3474
+    d.SetW(native::off::Ring, d.W(0x3554));  // katamari-nx: 0x3484->0x3474 (ilomilo-nx: 0x3474->0x3554)
 }
 
 // void D3DDevice_SetTexture(D3DDevice*, DWORD Sampler, D3DBaseTexture*,

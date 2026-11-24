@@ -288,12 +288,12 @@ public:
     }
 
     // A game_root folder next to the executable is used when no path was given.
-    // On the Switch that is sdmc:/switch/katamari-nx/game_root (the extracted disc).
+    // On the Switch that is sdmc:/switch/ilomilo-nx/game_root (the extracted package, with the update's default.xexp).
     void OnConfigurePaths(rex::PathConfig& paths) override {
 #if defined(KATAMARI_BUILTIN_CONFIG)
         // The player's settings file. Not renut.toml: the test builds' full one, left on an SD card, would override
         // every built-in setting.
-        paths.config_path = rex::filesystem::GetExecutableFolder() / "katamari.toml";
+        paths.config_path = rex::filesystem::GetExecutableFolder() / "ilomilo.toml";  // ilomilo-nx: the player's file
 #endif
         if (paths.game_data_root.empty()) {
             const auto folder = rex::filesystem::GetExecutableFolder();

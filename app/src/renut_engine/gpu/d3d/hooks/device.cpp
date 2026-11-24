@@ -68,7 +68,7 @@ extern std::atomic<uint64_t> g_banjo_game_frames;  // katamari_keys.cpp: game fr
 REXCVAR_DEFINE_BOOL(banjo_renut_scaler_crop, false, "Banjo/Enhancements",
                     "The scaler's source rect (Swap's D3DVIDEO_SCALER_PARAMETERS, or the device's own copy) picks the "
                     "part of the front buffer scanned out: a game that renders below 720p into a corner of it was shown "
-                    "whole. The device's copy is at its XDK's offset (0x3584 here, the base's SetScalerParameters). "
+                    "whole. The device's copy is at its XDK's offset (0x3670 here, the base's SetScalerParameters). "  // ilomilo-nx: 0x3584->0x3670
                     "false: the whole front buffer, as before")
     .lifecycle(rex::cvar::Lifecycle::kInitOnly);
 
@@ -96,7 +96,9 @@ using namespace renut::gpu;
 // Kernel exports the device code uses.
 // katamari-nx: Beautiful Katamari's GetCurrentThreadId is sub_824C1C10 (`lwz r11,256(r13); lwz r3,332(r11); blr`,
 // N&B's rex_GetCurrentThreadId 0x8220F1E0 byte for byte).
-REX_IMPORT(__imp__sub_824C1C10, GuestGetCurrentThreadId, u32());
+// ilomilo-nx: ilomilo's is sub_822748B8 (the same three instructions; AcquireThreadOwnership sub_8220E408 calls it
+// twice, as Katamari's calls sub_824C1C10; Bangai-O's sub_8243A860 pairs with it).
+REX_IMPORT(__imp__sub_822748B8, GuestGetCurrentThreadId, u32());
 REX_IMPORT(__imp__RtlInitializeCriticalSection, RtlInitializeCriticalSection, void(u32));
 REX_IMPORT(__imp__KeQueryPerformanceFrequency, KeQueryPerformanceFrequency, u32());
 REX_IMPORT(__imp__KeGetCurrentProcessType, KeGetCurrentProcessType, u32());
@@ -130,24 +132,24 @@ constexpr u8 kDeviceFlagImmediateFences = 0x02;
 // Pointer to the completed-fence word IsFencePending / BlockOnFence read.
 constexpr u32 kDeviceOffsetFenceCompletion = 10896;
 // Nonzero while a KickOff is in progress (BlockOnFence does not kick then).
-constexpr u32 kDeviceOffsetInKickOff = 13216;  // katamari-nx: 13232->13216
+constexpr u32 kDeviceOffsetInKickOff = 13408;  // katamari-nx: 13232->13216 (ilomilo-nx: 13216->13408)
 // Side buffer (0x12C0 bytes) every device gets.
-constexpr u32 kDeviceOffsetSideBuffer = 16704;  // katamari-nx: 16728->16704
+constexpr u32 kDeviceOffsetSideBuffer = 16944;  // katamari-nx: 16728->16704 (ilomilo-nx: 16704->16944)
 constexpr u32 kSideBufferSize = 0x12C0;
 // Set to -1 by the device-type-2 path.
-constexpr u32 kDeviceOffsetsMinusOne[] = {21532, 21536, 14912};  // katamari-nx: 21560->21532, 21564->21536, 14936->14912
+constexpr u32 kDeviceOffsetsMinusOne[] = {21776, 21780, 15148};  // katamari-nx: 21560->21532, 21564->21536, 14936->14912 (ilomilo-nx: 21532->21776, 21536->21780, 14912->15148)
 constexpr u32 kDeviceTypeNoHardware = 2;
 // Copied from the global qword at 0x82DA3478 into every device.
 constexpr u32 kDeviceOffsetGlobalQword = 10880;
-constexpr u32 kGlobalQwordVa = 0x82AD93F8;  // katamari-nx: 0x82DA3478->0x82AD93F8
+constexpr u32 kGlobalQwordVa = 0x824B4A48;  // katamari-nx: 0x82DA3478->0x82AD93F8 (ilomilo-nx: 0x82AD93F8->0x824B4A48)
 // Hardware-path fields: two critical sections, QueryPerformanceFrequency and
 // its reciprocal as floats, and 41 words set to -1.
-constexpr u32 kDeviceOffsetCriticalSection0 = 14920;  // katamari-nx: 14944->14920
-constexpr u32 kDeviceOffsetCriticalSection1 = 14948;  // katamari-nx: 14972->14948
-constexpr u32 kDeviceOffsetPerfFrequency = 21560;  // katamari-nx: 21588->21560
-constexpr u32 kDeviceOffsetTitleMinusOne = 21672;  // katamari-nx: 23380->21672
+constexpr u32 kDeviceOffsetCriticalSection0 = 15156;  // katamari-nx: 14944->14920 (ilomilo-nx: 14920->15156)
+constexpr u32 kDeviceOffsetCriticalSection1 = 15184;  // katamari-nx: 14972->14948 (ilomilo-nx: 14948->15184)
+constexpr u32 kDeviceOffsetPerfFrequency = 21804;  // katamari-nx: 21588->21560 (ilomilo-nx: 21560->21804)
+constexpr u32 kDeviceOffsetTitleMinusOne = 23600;  // katamari-nx: 23380->21672 (ilomilo-nx: 21672->23600)
 // Import slot holding the address of the kernel's VdGlobalDevice variable.
-constexpr u32 kVdGlobalDeviceImportSlot = 0x82000750;  // katamari-nx: 0x820007F8->0x82000750
+constexpr u32 kVdGlobalDeviceImportSlot = 0x8200072C;  // katamari-nx: 0x820007F8->0x82000750 (ilomilo-nx: 0x82000750->0x8200072C)
 
 constexpr u32 kE_OUTOFMEMORY = 0x8007000Eu;
 
@@ -201,7 +203,7 @@ bool FencePending(const u8 *bytes, u32 fence) {
 // D3D::XenonGpu_Initialize: the register image's power-on values, everything
 // dirty. (Its register writes go into the ring.)
 void XenonGpuInitialize(native::Device d) {
-  d.SetQ(0x2E28, 0x00000000FFFFFFFFull);  // katamari-nx: 0x2E38->0x2E28
+  d.SetQ(0x2EE0, 0x00000000FFFFFFFFull);  // katamari-nx: 0x2E38->0x2E28 (ilomilo-nx: 0x2E28->0x2EE0)
   for (u32 i = 0; i < 26; ++i)  // texture fetch constants: type 0
     d.SetW(native::off::TextureFetch + i * 24, d.W(native::off::TextureFetch + i * 24) & ~3u);
   for (u32 i = 0; i < 18; ++i) {  // vertex fetch constants: type 1
@@ -230,32 +232,32 @@ void XenonGpuInitialize(native::Device d) {
 
 // D3D::InitializeApiState (0x82641BC8).
 void InitializeApiState(native::Device d) {
-  const u32 present_interval = d.W(0x3504);  // katamari-nx: 0x351C->0x3504
-  const u32 behavior_flags2 = d.W(0x56F8);  // katamari-nx: 0x5DAC->0x56F8
+  const u32 present_interval = d.W(0x35F0);  // katamari-nx: 0x351C->0x3504 (ilomilo-nx: 0x3504->0x35F0)
+  const u32 behavior_flags2 = d.W(0x5E88);  // katamari-nx: 0x5DAC->0x56F8 (ilomilo-nx: 0x56F8->0x5E88)
   native::InitializeStateTables(d);
-  d.SetW(0x2F98, 5);  // katamari-nx: 0x2FA8->0x2F98
-  d.SetW(0x2F9C, 1);  // katamari-nx: 0x2FAC->0x2F9C
+  d.SetW(0x3050, 5);  // katamari-nx: 0x2FA8->0x2F98 (ilomilo-nx: 0x2F98->0x3050)
+  d.SetW(0x3054, 1);  // katamari-nx: 0x2FAC->0x2F9C (ilomilo-nx: 0x2F9C->0x3054)
   native::SetScreenExtentQueryMode(d, 2);  // D3DSEQM_PRECLIP
-  d.SetW(0x3088, 2);  // katamari-nx: 0x3098->0x3088
-  d.SetW(0x2FD0, 0x2A23B9);  // katamari-nx: 0x2FE0->0x2FD0
-  d.SetH(0x2FCC, 0);  // katamari-nx: 0x2FDC->0x2FCC
-  d.SetH(0x2FCE, 0);  // katamari-nx: 0x2FDE->0x2FCE
-  d.SetB(0x2FD4, 0);  // katamari-nx: 0x2FE4->0x2FD4
-  d.SetB(0x2FD5, 0);  // katamari-nx: 0x2FE5->0x2FD5
-  d.SetB(0x2FD6, 0);  // katamari-nx: 0x2FE6->0x2FD6
-  d.SetW(0x2FDC, ~0u);  // katamari-nx: 0x2FEC->0x2FDC
+  d.SetW(0x3140, 2);  // katamari-nx: 0x3098->0x3088 (ilomilo-nx: 0x3088->0x3140)
+  d.SetW(0x3088, 0x2A23B9);  // katamari-nx: 0x2FE0->0x2FD0 (ilomilo-nx: 0x2FD0->0x3088)
+  d.SetH(0x3084, 0);  // katamari-nx: 0x2FDC->0x2FCC (ilomilo-nx: 0x2FCC->0x3084)
+  d.SetH(0x3086, 0);  // katamari-nx: 0x2FDE->0x2FCE (ilomilo-nx: 0x2FCE->0x3086)
+  d.SetB(0x308C, 0);  // katamari-nx: 0x2FE4->0x2FD4 (ilomilo-nx: 0x2FD4->0x308C)
+  d.SetB(0x308D, 0);  // katamari-nx: 0x2FE5->0x2FD5 (ilomilo-nx: 0x2FD5->0x308D)
+  d.SetB(0x308E, 0);  // katamari-nx: 0x2FE6->0x2FD6 (ilomilo-nx: 0x2FD6->0x308E)
+  d.SetW(0x3094, ~0u);  // katamari-nx: 0x2FEC->0x2FDC (ilomilo-nx: 0x2FDC->0x3094)
   // Three zero bytes; N&B leaves the fourth from its stack.
-  d.SetW(0x2FE0, 0);  // katamari-nx: 0x2FF0->0x2FE0
-  d.SetW(0x2FD8, 0x00FF0000);  // katamari-nx: 0x2FE8->0x2FD8
-  d.SetW(0x2FB0, 1);  // katamari-nx: 0x2FC0->0x2FB0
-  d.SetW(0x2FB4, 0);  // katamari-nx: 0x2FC4->0x2FB4
-  d.SetW(0x2FC8, 0);  // katamari-nx: 0x2FD8->0x2FC8
+  d.SetW(0x3098, 0);  // katamari-nx: 0x2FF0->0x2FE0 (ilomilo-nx: 0x2FE0->0x3098)
+  d.SetW(0x3090, 0x00FF0000);  // katamari-nx: 0x2FE8->0x2FD8 (ilomilo-nx: 0x2FD8->0x3090)
+  d.SetW(0x3068, 1);  // katamari-nx: 0x2FC0->0x2FB0 (ilomilo-nx: 0x2FB0->0x3068)
+  d.SetW(0x306C, 0);  // katamari-nx: 0x2FC4->0x2FB4 (ilomilo-nx: 0x2FB4->0x306C)
+  d.SetW(0x3080, 0);  // katamari-nx: 0x2FD8->0x2FC8 (ilomilo-nx: 0x2FC8->0x3080)
   // The default vertex declaration is the device's own, at +0x2FA8.
-  d.SetW(d3d::kDeviceOffsetVertexDeclaration, d.va + 0x2F98);  // katamari-nx: 0x2FA8->0x2F98
+  d.SetW(d3d::kDeviceOffsetVertexDeclaration, d.va + 0x3050);  // katamari-nx: 0x2FA8->0x2F98 (ilomilo-nx: 0x2F98->0x3050)
   d.Dirty(2, 0x80000);
-  d.SetW(0x3504, present_interval);  // katamari-nx: 0x351C->0x3504
-  const u32 flags2 = d.W(0x56F8);  // katamari-nx: 0x5DAC->0x56F8
-  d.SetW(0x56F8, (behavior_flags2 & 1) ? (flags2 | 1) : (flags2 & ~1u));  // katamari-nx: 0x5DAC->0x56F8
+  d.SetW(0x35F0, present_interval);  // katamari-nx: 0x351C->0x3504 (ilomilo-nx: 0x3504->0x35F0)
+  const u32 flags2 = d.W(0x5E88);  // katamari-nx: 0x5DAC->0x56F8 (ilomilo-nx: 0x56F8->0x5E88)
+  d.SetW(0x5E88, (behavior_flags2 & 1) ? (flags2 | 1) : (flags2 & ~1u));  // katamari-nx: 0x5DAC->0x56F8 (ilomilo-nx: 0x56F8->0x5E88)
   d.SetW(native::off::PredicationSet, 0);
   native::UpdateTilePredicated(d);
   d.SetW(native::off::Predication, ~0u);
@@ -275,7 +277,7 @@ void SetScalerParameters(native::Device d, const be_u32 *scaler) {
     copy[i] = scaler[i];
   copy[6] = copy[10] = scaler[6] ? 3 : 0;
   for (u32 i = 0; i < 14; ++i)
-    d.SetW(0x3584 + i * 4, copy[i]);  // katamari-nx: 0x359C->0x3584
+    d.SetW(0x3670 + i * 4, copy[i]);  // katamari-nx: 0x359C->0x3584 (ilomilo-nx: 0x3584->0x3670)
   d.SetB(native::off::Flags2, d.B(native::off::Flags2) | 0x10);
 }
 
@@ -308,10 +310,10 @@ bool InitializePresentationParameters(native::Device d, u32 parameters_va) {
 
   rex::system::X_VIDEO_MODE mode{};
   rex::kernel::xboxkrnl::VdQueryVideoMode(&mode);
-  d.SetW(0x540C, u32(mode.display_width));  // katamari-nx: 0x5428->0x540C
-  d.SetW(0x5414, u32(mode.display_width));  // katamari-nx: 0x5430->0x5414
-  d.SetW(0x5418, u32(i64(float(mode.refresh_rate) + 0.5f)));  // katamari-nx: 0x5434->0x5418
-  d.SetW(0x5410, u32(mode.display_height));  // katamari-nx: 0x542C->0x5410
+  d.SetW(0x5500, u32(mode.display_width));  // katamari-nx: 0x5428->0x540C (ilomilo-nx: 0x540C->0x5500)
+  d.SetW(0x5508, u32(mode.display_width));  // katamari-nx: 0x5430->0x5414 (ilomilo-nx: 0x5414->0x5508)
+  d.SetW(0x550C, u32(i64(float(mode.refresh_rate) + 0.5f)));  // katamari-nx: 0x5434->0x5418 (ilomilo-nx: 0x5418->0x550C)
+  d.SetW(0x5504, u32(mode.display_height));  // katamari-nx: 0x542C->0x5410 (ilomilo-nx: 0x5410->0x5504)
 
   if (!p[15])  // DisableAutoFrontBuffer
     RGPU_ERROR("InitializePresentationParameters: an automatic front buffer is not supported");
@@ -330,9 +332,9 @@ bool InitializePresentationParameters(native::Device d, u32 parameters_va) {
     native::SetDepthStencilSurface(d, surface);
   }
   for (u32 i = 0; i < 0x7C / 4; ++i)
-    d.SetW(0x34D0 + i * 4, p[i]);  // katamari-nx: 0x34E8->0x34D0
+    d.SetW(0x35BC + i * 4, p[i]);  // katamari-nx: 0x34E8->0x34D0 (ilomilo-nx: 0x34D0->0x35BC)
   if ((front_format & 0x3FFC0000u) != 0x24900000u)
-    d.SetW(0x3510, (front_format & 0x3F) | 0x28280100u);  // katamari-nx: 0x3528->0x3510
+    d.SetW(0x35FC, (front_format & 0x3F) | 0x28280100u);  // katamari-nx: 0x3528->0x3510 (ilomilo-nx: 0x3510->0x35FC)
   SetScalerParameters(d, p + 0x60 / 4);
   // The default gamma: linear, as a piecewise-linear ramp for the front
   // buffer formats 7 and 0x36 (0x32 counts as 6).
@@ -359,7 +361,7 @@ bool InitializePresentationParameters(native::Device d, u32 parameters_va) {
     }
     SetGammaRamp(d, ramp);
   }
-  d.SetW(0x412C, ~0u);  // katamari-nx: 0x4144->0x412C
+  d.SetW(0x421C, ~0u);  // katamari-nx: 0x4144->0x412C (ilomilo-nx: 0x412C->0x421C)
   return true;
 }
 
@@ -369,7 +371,7 @@ bool InitializePresentationParameters(native::Device d, u32 parameters_va) {
 bool InitializeTitleDevice(native::Device d, u32 present_parameters) {
   RtlInitializeCriticalSection(d.va + kDeviceOffsetCriticalSection0);
   RtlInitializeCriticalSection(d.va + kDeviceOffsetCriticalSection1);
-  d.SetW(16688, 0);  // katamari-nx: 16712->16688
+  d.SetW(16928, 0);  // katamari-nx: 16712->16688 (ilomilo-nx: 16688->16928)
 
   // D3D reads the device through the kernel's VdGlobalDevice from any thread
   // (resource locks, blockers).
@@ -455,8 +457,8 @@ u32 Direct3D_CreateDevice_hook(u32 /*adapter*/, u32 device_type, u32 /*unused*/,
     if (!(behavior_flags & 0x100) && !(behavior_flags & 0x3F000000))
       behavior_flags |= 0xC000000;
     WriteU32(bytes, d3d::kDeviceOffsetBehaviorFlags, behavior_flags);
-    WriteU32(bytes, 21532, 0xFFFFFFFFu);  // katamari-nx: 21560->21532
-    WriteU32(bytes, 21536, 0xFFFFFFFFu);  // katamari-nx: 21564->21536
+    WriteU32(bytes, 21776, 0xFFFFFFFFu);  // katamari-nx: 21560->21532 (ilomilo-nx: 21532->21776)
+    WriteU32(bytes, 21780, 0xFFFFFFFFu);  // katamari-nx: 21564->21536 (ilomilo-nx: 21536->21780)
   } else {
     for (u32 offset : kDeviceOffsetsMinusOne)
       WriteU32(bytes, offset, 0xFFFFFFFFu);
@@ -709,14 +711,14 @@ void ConfigureForOnePassZPass(native::Device d, bool flag, u32 tile_count, u32 w
   for (u32 i = 0; i < tile_count; ++i) {
     const u32 x = d.W(native::off::TileOrigins + i * 8);
     const u32 y = d.W(native::off::TileOrigins + i * 8 + 4);
-    d.SetW(0x3330 + i * 4, (y / tile_height) * tiles_per_row + x / tile_width);  // katamari-nx: 0x3340->0x3330
+    d.SetW(0x33E8 + i * 4, (y / tile_height) * tiles_per_row + x / tile_width);  // katamari-nx: 0x3340->0x3330 (ilomilo-nx: 0x3330->0x33E8)
   }
-  d.SetW(0x336C, pitch);  // katamari-nx: 0x337C->0x336C
+  d.SetW(0x3424, pitch);  // katamari-nx: 0x337C->0x336C (ilomilo-nx: 0x336C->0x3424)
   d.SetW(native::off::SurfaceInfo, native::Insert(d.W(native::off::SurfaceInfo), pitch, 18, 14));
   d.Dirty(2, 0x100);
-  d.SetW(0x3370, ((unit + width - 1) / unit) * unit);  // katamari-nx: 0x3380->0x3370
+  d.SetW(0x3428, ((unit + width - 1) / unit) * unit);  // katamari-nx: 0x3380->0x3370 (ilomilo-nx: 0x3370->0x3428)
   u64 predicated = d.Q(native::off::PredicatedPending2);
-  if ((d.B(native::off::Flags3) & 0x20) || (d.W(0x2E44) & 0xE0000) != 0x40000)  // katamari-nx: 0x2E54->0x2E44
+  if ((d.B(native::off::Flags3) & 0x20) || (d.W(0x2EFC) & 0xE0000) != 0x40000)  // katamari-nx: 0x2E54->0x2E44 (ilomilo-nx: 0x2E44->0x2EFC)
     predicated |= 0x100;
   else
     predicated &= ~u64(0x100);
@@ -748,11 +750,11 @@ u32 D3DDevice_BeginCommandBuffer_hook(u32 device_va, u32 command_buffer, u32 fla
   bw(kBufferFlags) = u32(bw(kBufferFlags)) & ~0x70u;
   for (u32 offset : {0x7Cu, 0x80u, 0x84u, 0x70u, 0x90u, 0x74u, 0x78u})
     bw(offset) = 0u;
-  d.SetW(0x3A38, 8);  // katamari-nx: 0x3A50->0x3A38
+  d.SetW(0x3B24, 8);  // katamari-nx: 0x3A50->0x3A38 (ilomilo-nx: 0x3A38->0x3B24)
   d.SetB(native::off::Flags1, d.B(native::off::Flags1) & 0xDF);
-  d.SetW(0x3A2C, 0);  // katamari-nx: 0x3A44->0x3A2C
-  d.SetW(0x3A28, bw(kBufferAllocatorSize));  // katamari-nx: 0x3A40->0x3A28
-  for (u32 offset = 0x34B8; offset <= 0x34CC; offset += 4)  // katamari-nx: 0x34D0->0x34B8, 0x34E4->0x34CC
+  d.SetW(0x3B18, 0);  // katamari-nx: 0x3A44->0x3A2C (ilomilo-nx: 0x3A2C->0x3B18)
+  d.SetW(0x3B14, bw(kBufferAllocatorSize));  // katamari-nx: 0x3A40->0x3A28 (ilomilo-nx: 0x3A28->0x3B14)
+  for (u32 offset = 0x35A4; offset <= 0x35B8; offset += 4)  // katamari-nx: 0x34D0->0x34B8, 0x34E4->0x34CC (ilomilo-nx: 0x34B8->0x35A4, 0x34CC->0x35B8)
     d.SetW(offset, 0);
   native::RewindRing(d);
 
@@ -810,8 +812,8 @@ u32 D3DDevice_BeginCommandBuffer_hook(u32 device_va, u32 command_buffer, u32 fla
     }
     d.SetW(native::off::TilingExtent, extent_x);
     d.SetW(native::off::TilingExtent + 4, extent_y);
-    d.SetW(0x337C, 0);  // katamari-nx: 0x338C->0x337C
-    d.SetW(0x31A8, 2);  // katamari-nx: 0x31B8->0x31A8
+    d.SetW(0x3434, 0);  // katamari-nx: 0x338C->0x337C (ilomilo-nx: 0x337C->0x3434)
+    d.SetW(0x3260, 2);  // katamari-nx: 0x31B8->0x31A8 (ilomilo-nx: 0x31A8->0x3260)
     if (flags & 0x40) {
       ConfigureForOnePassZPass(d, (flags >> 7) & 1, tile_count, extent_x);
       bw(kBufferFlags) = u32(bw(kBufferFlags)) | 0x20000;
@@ -819,10 +821,10 @@ u32 D3DDevice_BeginCommandBuffer_hook(u32 device_va, u32 command_buffer, u32 fla
   }
   if (flags & 4) {
     d.SetB(native::off::Flags, d.B(native::off::Flags) | 0x40);
-    d.SetW(0x3198, native::Extract(d.W(native::off::DepthControl), 4, 3));  // katamari-nx: 0x31A8->0x3198
+    d.SetW(0x3250, native::Extract(d.W(native::off::DepthControl), 4, 3));  // katamari-nx: 0x31A8->0x3198 (ilomilo-nx: 0x3198->0x3250)
     if (d.B(native::off::Flags3) & 0x20) {
       u64 predicated = d.Q(native::off::PredicatedPending2) | (u64(1) << 37);
-      if (d.W(0x3370) != (d.W(native::off::SurfaceInfo) & 0x3FFF))  // katamari-nx: 0x3380->0x3370
+      if (d.W(0x3428) != (d.W(native::off::SurfaceInfo) & 0x3FFF))  // katamari-nx: 0x3380->0x3370 (ilomilo-nx: 0x3370->0x3428)
         predicated |= u64(1) << 57;
       d.SetQ(native::off::PredicatedPending2, predicated);
     }
@@ -956,7 +958,7 @@ void D3DDevice_Swap_hook(u32 device_va, u32 front_buffer, u32 parameters) {
     banjo::renut_gpu::checks::QueueKickFlush();
     KickFence(device);
     // banjo-nx (2026-10-20, banjo_renut_game_gamma): the device's gamma ramp (StoreGamma's +0x3A9C) for the present.
-    Video::NoteGameGamma(device + 0x3A84, g_gamma_piecewise);  // katamari-nx: 0x3A9C->0x3A84; halo3-nx: the form
+    Video::NoteGameGamma(device + 0x3B70, g_gamma_piecewise);  // katamari-nx: 0x3A9C->0x3A84; halo3-nx: the form (ilomilo-nx: 0x3A84->0x3B70)
   }
 
   // Port 161 (from fnxf_xiii, its note of 2026-11-05; banjo_renut_bookkeeping_after_present): the frame's bookkeeping
@@ -971,7 +973,7 @@ void D3DDevice_Swap_hook(u32 device_va, u32 front_buffer, u32 parameters) {
   std::array<i32, 4> scaler{};
   if (crop) {
     const be_u32 *p = parameters ? GuestPtr<const be_u32>(parameters)
-                                 : (device_va ? GuestPtr<const be_u32>(device_va + 0x3584) : nullptr);
+                                 : (device_va ? GuestPtr<const be_u32>(device_va + 0x3670) : nullptr);  // ilomilo-nx: 0x3584->0x3670
     if (p)
       for (int i = 0; i < 4; ++i)
         scaler[i] = i32(u32(p[i]));
@@ -1050,7 +1052,7 @@ void D3DDevice_InsertCallback_hook(u32 device, u32 /*type*/, u32 callback, u32 c
 
 constexpr u32 kDeviceOffsetReferenceCount = 0x3C;
 constexpr u32 kDeviceOffsetOwnerThread = 0x2A88;
-constexpr u32 kDeviceCapsVa = 0x820FC1F8;  // N&B's constant D3DCAPS9 (katamari-nx: 0x82161B30->0x820FC1F8)
+constexpr u32 kDeviceCapsVa = 0x8201A930;  // N&B's constant D3DCAPS9 (katamari-nx: 0x82161B30->0x820FC1F8) (ilomilo-nx: 0x820FC1F8->0x8201A930)
 constexpr u32 kDeviceCapsSize = 0x130;
 // katamari-nx: XDK 2.0.5632 has no D3D_IsFusion and no such word (N&B's 0x82DC67D4); 0 = not a Fusion GPU.
 constexpr u32 kFusionVa = 0;      // non-zero on a Fusion GPU
@@ -1094,10 +1096,10 @@ void D3DDevice_GetDisplayMode_hook(u32 device_va, u32 /*swap_chain*/, mapped_u32
   const native::Device d = native::DeviceAt(device_va);
   if (!d || !mode)
     return;
-  mode[0] = d.W(0x34D0);  // katamari-nx: 0x34E8->0x34D0
-  mode[1] = d.W(0x34D4);  // katamari-nx: 0x34EC->0x34D4
-  mode[2] = d.W(0x5418);  // katamari-nx: 0x5434->0x5418
-  mode[3] = d.W(0x34D8);  // katamari-nx: 0x34F0->0x34D8
+  mode[0] = d.W(0x35BC);  // katamari-nx: 0x34E8->0x34D0 (ilomilo-nx: 0x34D0->0x35BC)
+  mode[1] = d.W(0x35C0);  // katamari-nx: 0x34EC->0x34D4 (ilomilo-nx: 0x34D4->0x35C0)
+  mode[2] = d.W(0x550C);  // katamari-nx: 0x5434->0x5418 (ilomilo-nx: 0x5418->0x550C)
+  mode[3] = d.W(0x35C4);  // katamari-nx: 0x34F0->0x34D8 (ilomilo-nx: 0x34D8->0x35C4)
 }
 
 // void D3DDevice_BlockOnFence(DWORD Fence) [0x8225D1D0]: on the device D3D
@@ -1201,22 +1203,22 @@ std::array<u16, 1024> GammaTable(bool inverse) {
 
 // The device's gamma (+0x3A9C, red, green, blue: 256 words each) for the
 // display to pick up; the renderer presents without it.
-constexpr u32 kDeviceOffsetGammaRamp = 0x3A84;  // katamari-nx: 0x3A9C->0x3A84
+constexpr u32 kDeviceOffsetGammaRamp = 0x3B70;  // katamari-nx: 0x3A9C->0x3A84 (ilomilo-nx: 0x3A84->0x3B70)
 
 void StoreGamma(native::Device d, const be_u16 (&corrected)[768]) {
   if (std::memcmp(corrected, d.bytes + kDeviceOffsetGammaRamp, sizeof(corrected)) == 0)
     return;
   if (KeGetCurrentProcessType() != 2) {
     // The display's pending copy takes the previous ramp first.
-    const u32 pending = d.W(0x56E4);  // katamari-nx: 0x5D90->0x56E4
-    if (pending && !(d.W(0x56E8) & 0x80000000u)) {  // katamari-nx: 0x5D94->0x56E8
+    const u32 pending = d.W(0x5E6C);  // katamari-nx: 0x5D90->0x56E4 (ilomilo-nx: 0x56E4->0x5E6C)
+    if (pending && !(d.W(0x5E70) & 0x80000000u)) {  // katamari-nx: 0x5D94->0x56E8 (ilomilo-nx: 0x56E8->0x5E70)
       if (auto *dest = GuestPtr<u8>(pending))
         std::memcpy(dest, d.bytes + kDeviceOffsetGammaRamp, sizeof(corrected));
     }
-    d.SetW(0x56E8, d.W(0x56E8) | 0x80000000u);  // katamari-nx: 0x5D94->0x56E8, 0x5D94->0x56E8
+    d.SetW(0x5E70, d.W(0x5E70) | 0x80000000u);  // katamari-nx: 0x5D94->0x56E8, 0x5D94->0x56E8 (ilomilo-nx: 0x56E8->0x5E70, 0x56E8->0x5E70)
   }
   std::memcpy(d.bytes + kDeviceOffsetGammaRamp, corrected, sizeof(corrected));
-  d.SetW(0x412C, d.W(0x412C) | 2);  // katamari-nx: 0x4144->0x412C, 0x4144->0x412C
+  d.SetW(0x421C, d.W(0x421C) | 2);  // katamari-nx: 0x4144->0x412C, 0x4144->0x412C (ilomilo-nx: 0x412C->0x421C, 0x412C->0x421C)
 }
 
 // D3DDevice_SetGammaRamp's work: the ramp (D3DGAMMARAMP, 3 x 256 words)
@@ -1344,10 +1346,10 @@ void SetFence(u32 device_va) {
   if (bytes[kDeviceOffsetFlags2] & kDeviceFlagImmediateFences) {
     Device d = DeviceAt(device_va);
     const u32 fence = d.W(off::FenceTag);
-    if (!d.W(0x5404)) {  // katamari-nx: 0x541C->0x5404
+    if (!d.W(0x54F4)) {  // katamari-nx: 0x541C->0x5404 (ilomilo-nx: 0x5404->0x54F4)
       if (auto *completion = GuestPtr<be_u32>(d.W(off::FenceCompletion))) {
         completion[0] = fence;
-        completion[1] = (d.W(0x3A30) & 3) | d.W(off::Ring);  // katamari-nx: 0x3A48->0x3A30
+        completion[1] = (d.W(0x3B1C) & 3) | d.W(off::Ring);  // katamari-nx: 0x3A48->0x3A30 (ilomilo-nx: 0x3A30->0x3B1C)
       }
     }
     d.SetW(off::FenceTag, fence + 2);

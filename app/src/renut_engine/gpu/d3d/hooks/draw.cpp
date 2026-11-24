@@ -51,7 +51,7 @@ namespace {
 constexpr u32 kE_OUTOFMEMORY = 0x8007000Eu;
 // D3DVIEWPORT9 {0, 0, 0xFFFF, 0xFFFF, 0.0, 1.0} in N&B's data (unk_82001744):
 // the whole surface.
-constexpr u32 kFullViewport = 0x820FAEB4;  // katamari-nx: 0x82001744->0x820FAEB4
+constexpr u32 kFullViewport = 0x8201A010;  // katamari-nx: 0x82001744->0x820FAEB4 (ilomilo-nx: 0x820FAEB4->0x8201A010)
 // D3DRS_HIZWRITEENABLE's index in the render state table.
 constexpr u32 kRenderStateHiZWriteEnable = 97;
 
@@ -394,7 +394,7 @@ static void BeginTilingImpl(u32 device, u32 count, u32 rects_va, u32 color_va, u
   }
   d.SetW(native::off::TilingExtent, extent_x);
   d.SetW(native::off::TilingExtent + 4, extent_y);
-  d.SetW(0x337C, flags);  // katamari-nx: 0x338C->0x337C; XDK 2.0.5632 keeps Flags there (N&B's update: 0)
+  d.SetW(0x3434, flags);  // katamari-nx: 0x338C->0x337C; XDK 2.0.5632 keeps Flags there (N&B's update: 0) (ilomilo-nx: 0x337C->0x3434)
 
   if (!(flags & 1) && !(d.B(native::off::Flags3) & 0x20)) {
     // The largest tile, from its origin: its clear covers a tile of EDRAM.
@@ -407,7 +407,7 @@ static void BeginTilingImpl(u32 device, u32 count, u32 rects_va, u32 color_va, u
     // after the clear.
     float viewport[6];
     for (u32 i = 0; i < 6; ++i)
-      viewport[i] = d.F(0x3160 + i * 4);  // katamari-nx: 0x3170->0x3160
+      viewport[i] = d.F(0x3218 + i * 4);  // katamari-nx: 0x3170->0x3160 (ilomilo-nx: 0x3160->0x3218)
     i32 scissor[4];
     for (u32 i = 0; i < 4; ++i)
       scissor[i] = i32(d.W(native::off::ScissorRect + i * 4));
@@ -423,17 +423,17 @@ static void BeginTilingImpl(u32 device, u32 count, u32 rects_va, u32 color_va, u
     native::SetScissorRect(d, scissor[0], scissor[1], scissor[2], scissor[3]);
   }
   if (const auto *color = color_va ? GuestPtr<const u8>(color_va) : nullptr)
-    std::memcpy(d.bytes + 0x3380, color, 16);  // katamari-nx: 0x3390->0x3380
+    std::memcpy(d.bytes + 0x3440, color, 16);  // katamari-nx: 0x3390->0x3380 (ilomilo-nx: 0x3380->0x3440)
   else
-    std::memset(d.bytes + 0x3380, 0, 16);  // katamari-nx: 0x3390->0x3380
-  d.SetF(0x3390, clear_z);  // flt_82000D18 (katamari-nx: 0x33A0->0x3390; XDK 2.0.5632: the ClearZ argument)
-  d.SetW(0x3394, clear_stencil);  // katamari-nx: 0x33A4->0x3394; XDK 2.0.5632: the ClearStencil argument
+    std::memset(d.bytes + 0x3440, 0, 16);  // katamari-nx: 0x3390->0x3380 (ilomilo-nx: 0x3380->0x3440)
+  d.SetF(0x3450, clear_z);  // flt_82000D18 (katamari-nx: 0x33A0->0x3390; XDK 2.0.5632: the ClearZ argument) (ilomilo-nx: 0x3390->0x3450)
+  d.SetW(0x3454, clear_stencil);  // katamari-nx: 0x33A4->0x3394; XDK 2.0.5632: the ClearStencil argument (ilomilo-nx: 0x3394->0x3454)
 
   const u32 target = d.W(native::off::RenderTargets);
-  d.SetW(0x31AC, target ? target : d.W(native::off::DepthStencil));  // katamari-nx: 0x31BC->0x31AC
+  d.SetW(0x3264, target ? target : d.W(native::off::DepthStencil));  // katamari-nx: 0x31BC->0x31AC (ilomilo-nx: 0x31AC->0x3264)
   for (u32 i = 0; i < 5; ++i)  // the 4 targets, then depth
     d.SetW(native::off::TilingSurfaces + i * 4, d.W(native::off::RenderTargets + i * 4));
-  d.SetW(0x31A8, 2);  // katamari-nx: 0x31B8->0x31A8
+  d.SetW(0x3260, 2);  // katamari-nx: 0x31B8->0x31A8 (ilomilo-nx: 0x31A8->0x3260)
   d.SetB(native::off::Flags, d.B(native::off::Flags) | 0x20);
   d.SetW(native::off::PredicationSet, 0);
   native::UpdateTilePredicated(d);
@@ -486,7 +486,7 @@ static u32 EndTilingImpl(u32 device, bool katamari, u32 resolve_flags, u32 rects
       const u32 tile = native::off::TileRects + i * 16;
       ClearRect rect{i32(d.W(tile)), i32(d.W(tile + 4)), i32(d.W(tile + 8)), i32(d.W(tile + 12))};
       // A tile at the surface's edge resolves to a multiple of 8.
-      const u32 surface = d.W(0x31AC);  // katamari-nx: 0x31BC->0x31AC
+      const u32 surface = d.W(0x3264);  // katamari-nx: 0x31BC->0x31AC (ilomilo-nx: 0x31AC->0x3264)
       const auto *s = surface ? GuestPtr<const be_u32>(surface) : nullptr;
       const u32 size = s ? u32(s[9]) : 0;
       if (u32(rect.x2) == (size >> 18) + 1)
@@ -505,8 +505,8 @@ static u32 EndTilingImpl(u32 device, bool katamari, u32 resolve_flags, u32 rects
           if (d.W(native::off::DepthStencil))
             flags |= 0x200;
         }
-        Resolve(device, flags, &rect, dest_texture, dest_x, dest_y, 0, 0, device + 0x3380,  // katamari-nx: 0x3390->0x3380
-                d.F(0x3390), d.W(0x3394), 0);  // katamari-nx: 0x33A0->0x3390, 0x33A4->0x3394
+        Resolve(device, flags, &rect, dest_texture, dest_x, dest_y, 0, 0, device + 0x3440,  // katamari-nx: 0x3390->0x3380 (ilomilo-nx: 0x3380->0x3440)
+                d.F(0x3450), d.W(0x3454), 0);  // katamari-nx: 0x33A0->0x3390, 0x33A4->0x3394 (ilomilo-nx: 0x3390->0x3450, 0x3394->0x3454)
       } else {
         Resolve(device, resolve_flags, &rect, dest_texture, dest_x, dest_y, 0, 0, color_va,
                 clear_z /*N&B: flt_82000C1C*/, clear_stencil, params);
@@ -524,7 +524,7 @@ static u32 EndTilingImpl(u32 device, bool katamari, u32 resolve_flags, u32 rects
 
   d.SetB(native::off::Flags3, d.B(native::off::Flags3) & 0xCF);
   d.SetB(native::off::Flags, d.B(native::off::Flags) & 0xDF);
-  d.SetW(0x31AC, 0);  // katamari-nx: 0x31BC->0x31AC
+  d.SetW(0x3264, 0);  // katamari-nx: 0x31BC->0x31AC (ilomilo-nx: 0x31AC->0x3264)
   d.SetW(native::off::PredicationSet, 0);
   native::UpdateTilePredicated(d);
   d.SetW(native::off::RunPredicationState, 0);
@@ -579,7 +579,7 @@ void D3DDevice_Present_hook(u32 device) {
   FlushDeferredVertices(device);
   float viewport[6];
   for (u32 i = 0; i < 6; ++i)
-    viewport[i] = d.F(0x3160 + i * 4);  // katamari-nx: 0x3170->0x3160
+    viewport[i] = d.F(0x3218 + i * 4);  // katamari-nx: 0x3170->0x3160 (ilomilo-nx: 0x3160->0x3218)
   i32 scissor[4];
   for (u32 i = 0; i < 4; ++i)
     scissor[i] = i32(d.W(native::off::ScissorRect + i * 4));
@@ -595,7 +595,7 @@ void D3DDevice_Present_hook(u32 device) {
   native::SetViewport(d, viewport[0], viewport[1], viewport[2], viewport[3], viewport[4],
                       viewport[5]);
   native::SetScissorRect(d, scissor[0], scissor[1], scissor[2], scissor[3]);
-  native::Swap(device, front_buffer, device + 0x3530);  // katamari-nx: 0x3548->0x3530
+  native::Swap(device, front_buffer, device + 0x361C);  // katamari-nx: 0x3548->0x3530 (ilomilo-nx: 0x3530->0x361C)
   // katamari-nx: one game frame ends at Present (N&B's ended at its appMainDraw hook, renut_engine/FPS.cpp): frame
   // time, the Switch profiler's frame marks, the stall watchdog. blur-nx (2026-11-17): g_banjo_game_frames is counted
   // in the Swap hook (device.cpp) that native::Swap above runs: Blur swaps without Present.
@@ -629,10 +629,17 @@ BANJO_RENUT_UNHOOKED_HOOK(sub_821E17C0, D3DDevice_EndTiling_hook);  // D3DDevice
 // the targets at TilingSurfaces +0x31B0, where the zones put N&B's fields; the game calls it at 0x8271E62C) and
 // EndTiling (sub_824F0150: sig 0.66/0.36, resolves through Resolve sub_824F12B8; called at 0x8272F2E0..0x8272F384),
 // with their full arguments read from the registers (the float argument takes r8's place: ClearStencil is r9).
-BANJO_RENUT_UNHOOKED_HOOK_RAW(sub_824EFBC8) {  // ilomilo-nx: not placed (no N&B note)
+// ilomilo-nx (2026-11-25): ilomilo draws its 720 lines with 4x MSAA in predicated tiles (its colour and depth
+// surfaces are 1280x256: 1280 x 256 x 4 samples x 8 bytes is the whole 10 MiB of EDRAM; the first Renut run drew
+// only the top 256 lines, found in a RenderDoc capture: out/rdc/title1). XDK 2.0.20209's BeginTiling is sub_82215D10
+// (it stores the count at TileCount +12924, the rects at +12928, Flags at +13364, the extents at +13356 / +13360:
+// Katamari's fields plus 184) and EndTiling sub_82216378 (the tile rects +12928, Resolve's pattern); both read
+// Katamari's registers exactly (tools/arg_regs_compare.py: r3 r4 r5 r6 r7 r9 f1, and r10 for EndTiling). The game
+// calls BeginTiling at 0x821F0D88 / 0x821F0DC0 / 0x821F0FDC / 0x821F100C and EndTiling at 0x821F12E0 / 0x821F1500.
+BANJO_RENUT_HOOK_RAW(sub_82215D10) {  // ilomilo-nx: was sub_824EFBC8 (Katamari's BeginTiling)
   BeginTilingImpl(ctx.r3.u32, ctx.r5.u32, ctx.r6.u32, ctx.r7.u32, ctx.r4.u32, float(ctx.f1.f64), ctx.r9.u32);
 }
-BANJO_RENUT_UNHOOKED_HOOK_RAW(sub_824F0150) {  // ilomilo-nx: not placed (no N&B note)
+BANJO_RENUT_HOOK_RAW(sub_82216378) {  // ilomilo-nx: was sub_824F0150 (Katamari's EndTiling)
   ctx.r3.u64 = EndTilingImpl(ctx.r3.u32, true, ctx.r4.u32, ctx.r5.u32, ctx.r6.u32, ctx.r7.u32, float(ctx.f1.f64),
                              ctx.r9.u32, ctx.r10.u32);
 }

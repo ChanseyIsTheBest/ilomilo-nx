@@ -79,7 +79,7 @@ constexpr uint64_t TouchBits(u32 offset, u32 size) {
 // (word 3, bit 31 - n) is its chunks, its texture word and the stream words; any other tag the render state's chunks: the
 // bool and integer constants and the register packets (0x2780-0x2A7F) and the private render state (0x2E00-0x2EFF; on
 // title update 3 0x2E04-0x2F07, its CDevice 4 bytes longer from 0x2AC0 and 8 from 0x2E30).
-constexpr uint64_t kStateTagChunks = TouchBits(0x2780, 0x300) | TouchBits(0x2DF4, 0x108);  // katamari-nx: 0x2E00->0x2DF4
+constexpr uint64_t kStateTagChunks = TouchBits(0x2780, 0x300) | TouchBits(0x2EAC, 0x104);  // katamari-nx: 0x2E00->0x2DF4 (ilomilo-nx: XDK 20209's private render state, bangaio-nx's 0x2EAC + 0x104: Katamari's 0x2DF4..0x2EFC moved with the declaration and the state block, docs/ilomilo-notes.md)
 struct FetchTagTable {
   uint64_t chunks[32];
 };
@@ -299,26 +299,26 @@ constexpr u32 Flags1 = 0x2ABD;
 constexpr u32 Flags2 = 0x2ABE;
 constexpr u32 Flags3 = 0x2ABF;
 // TU3: the fields from 0x2E30 to 0x3390 are 8 bytes further on.
-constexpr u32 ScissorRect = 0x317C;        // SetScissorRect's RECT (katamari-nx: 0x318C->0x317C)
-constexpr u32 IndexBuffer = 0x308C;  // katamari-nx: 0x309C->0x308C
-constexpr u32 RenderTargets = 0x3090;      // [4] (katamari-nx: 0x30A0->0x3090)
-constexpr u32 DepthStencil = 0x30A0;  // katamari-nx: 0x30B0->0x30A0
-constexpr u32 StreamSources = 0x30A4;      // [16] (katamari-nx: 0x30B4->0x30A4)
-constexpr u32 StreamStrides = 0x30E8;      // u8[16], stride / 4 (katamari-nx: 0x30F8->0x30E8)
-constexpr u32 Textures = 0x30F8;           // [26] (katamari-nx: 0x3108->0x30F8)
-constexpr u32 Predication = 0x319C;        // tile predication of the next draws, ~0 none (katamari-nx: 0x31AC->0x319C)
-constexpr u32 RunPredicationState = 0x31A0;  // katamari-nx: 0x31B0->0x31A0
-constexpr u32 PredicationSet = 0x31A4;     // 1 while SetPredication's mask is non-zero (katamari-nx: 0x31B4->0x31A4)
-constexpr u32 TilingSurfaces = 0x31B0;     // the 4 targets and depth BeginTiling bound (katamari-nx: 0x31C0->0x31B0)
-constexpr u32 TileCount = 0x31C4;  // katamari-nx: 0x31D4->0x31C4
-constexpr u32 TileRects = 0x31C8;          // D3DRECT[TileCount] (katamari-nx: 0x31D8->0x31C8)
-constexpr u32 TileOrigins = 0x32B8;        // per tile, x & ~31, y & ~31 (katamari-nx: 0x32C8->0x32B8)
-constexpr u32 TilingExtent = 0x3374;       // widest and tallest tile edge (katamari-nx: 0x3384->0x3374)
-constexpr u32 CommandBuffer = 0x34B4;      // the D3DCommandBuffer being recorded (katamari-nx: 0x34CC->0x34B4)
-constexpr u32 SideBuffer = 0x4140;  // katamari-nx: 0x4158->0x4140
-constexpr u32 AutoDepthStencil = 0x39D0;   // InitializePresentationParameters' surfaces (katamari-nx: 0x39E8->0x39D0)
-constexpr u32 AutoFrontBuffer = 0x39D4;  // katamari-nx: 0x39EC->0x39D4
-constexpr u32 AutoBackBuffer = 0x39D8;  // katamari-nx: 0x39F0->0x39D8
+constexpr u32 ScissorRect = 0x3234;        // SetScissorRect's RECT (katamari-nx: 0x318C->0x317C) (ilomilo-nx: 0x317C->0x3234)
+constexpr u32 IndexBuffer = 0x3144;  // katamari-nx: 0x309C->0x308C (ilomilo-nx: 0x308C->0x3144)
+constexpr u32 RenderTargets = 0x3148;      // [4] (katamari-nx: 0x30A0->0x3090) (ilomilo-nx: 0x3090->0x3148)
+constexpr u32 DepthStencil = 0x3158;  // katamari-nx: 0x30B0->0x30A0 (ilomilo-nx: 0x30A0->0x3158)
+constexpr u32 StreamSources = 0x315C;      // [16] (katamari-nx: 0x30B4->0x30A4) (ilomilo-nx: 0x30A4->0x315C)
+constexpr u32 StreamStrides = 0x31A0;      // u8[16], stride / 4 (katamari-nx: 0x30F8->0x30E8) (ilomilo-nx: 0x30E8->0x31A0)
+constexpr u32 Textures = 0x31B0;           // [26] (katamari-nx: 0x3108->0x30F8) (ilomilo-nx: 0x30F8->0x31B0)
+constexpr u32 Predication = 0x3254;        // tile predication of the next draws, ~0 none (katamari-nx: 0x31AC->0x319C) (ilomilo-nx: 0x319C->0x3254)
+constexpr u32 RunPredicationState = 0x3258;  // katamari-nx: 0x31B0->0x31A0 (ilomilo-nx: 0x31A0->0x3258)
+constexpr u32 PredicationSet = 0x325C;     // 1 while SetPredication's mask is non-zero (katamari-nx: 0x31B4->0x31A4) (ilomilo-nx: 0x31A4->0x325C)
+constexpr u32 TilingSurfaces = 0x3268;     // the 4 targets and depth BeginTiling bound (katamari-nx: 0x31C0->0x31B0) (ilomilo-nx: 0x31B0->0x3268)
+constexpr u32 TileCount = 0x327C;  // katamari-nx: 0x31D4->0x31C4 (ilomilo-nx: 0x31C4->0x327C)
+constexpr u32 TileRects = 0x3280;          // D3DRECT[TileCount] (katamari-nx: 0x31D8->0x31C8) (ilomilo-nx: 0x31C8->0x3280)
+constexpr u32 TileOrigins = 0x3370;        // per tile, x & ~31, y & ~31 (katamari-nx: 0x32C8->0x32B8) (ilomilo-nx: 0x32B8->0x3370)
+constexpr u32 TilingExtent = 0x342C;       // widest and tallest tile edge (katamari-nx: 0x3384->0x3374) (ilomilo-nx: 0x3374->0x342C)
+constexpr u32 CommandBuffer = 0x35A0;      // the D3DCommandBuffer being recorded (katamari-nx: 0x34CC->0x34B4) (ilomilo-nx: 0x34B4->0x35A0)
+constexpr u32 SideBuffer = 0x4230;  // katamari-nx: 0x4158->0x4140 (ilomilo-nx: 0x4140->0x4230)
+constexpr u32 AutoDepthStencil = 0x3ABC;   // InitializePresentationParameters' surfaces (katamari-nx: 0x39E8->0x39D0) (ilomilo-nx: 0x39D0->0x3ABC)
+constexpr u32 AutoFrontBuffer = 0x3AC0;  // katamari-nx: 0x39EC->0x39D4 (ilomilo-nx: 0x39D4->0x3AC0)
+constexpr u32 AutoBackBuffer = 0x3AC4;  // katamari-nx: 0x39F0->0x39D8 (ilomilo-nx: 0x39D8->0x3AC4)
 }  // namespace off
 
 // Flags (0x2ABC) bits: 0x01 the draws that follow run in each tile's pass,

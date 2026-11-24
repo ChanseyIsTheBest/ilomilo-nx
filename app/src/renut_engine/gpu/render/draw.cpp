@@ -9773,7 +9773,7 @@ VertexDeclarationRecord &NoDeclaration() {
 // Its D3DVERTEXELEMENT9s (12 bytes each, ended by D3DDECL_END) are at +52 of the declaration, inside the device
 // snapshot, so a draw reads them from its own snapshot; at most 15 before the device's next field (+0x3088). One record
 // per distinct element list; each new list is logged once with its elements, to check the layout.
-constexpr u32 kDeviceDeclarationOffset = 0x2F98;
+constexpr u32 kDeviceDeclarationOffset = 0x3050;  // ilomilo-nx: 0x2F98->0x3050
 constexpr u32 kDeclarationElementsOffset = 52;
 constexpr u32 kDeviceDeclarationMaxElements = 15;
 // culdcept-nx (2026-11-19): draw.h's field map counts these bytes as the declaration (FieldOfOffset).
@@ -10598,7 +10598,7 @@ std::unordered_map<const void *, std::unordered_map<uint64_t, u32>> g_census_lef
 constexpr u32 kCensusFetchBegin = u32(offsetof(d3d::Device, m_Constants));
 constexpr u32 kCensusFloatBegin = kCensusFetchBegin + u32(offsetof(d3d::Constants, VertexShaderF));
 constexpr u32 kCensusTailBegin = kCensusFetchBegin + u32(offsetof(d3d::Constants, VertexShaderB));
-static_assert(kCensusTailBegin < 10880 && 11776 < d3d::kDeviceSnapshotSize);  // katamari-nx: a chunk boundary (backend/queued.cpp)
+static_assert(kCensusTailBegin < 10880 && 11904 < d3d::kDeviceSnapshotSize);  // katamari-nx: a chunk boundary (backend/queued.cpp) (ilomilo-nx: 11776->11904)
 
 bool CensusCompared(u32 k) {  // g_census[k + 1] is frame N-(k+1)
   return g_census[0].frame != UINT64_MAX && g_census[k + 1].frame != UINT64_MAX &&
@@ -10653,7 +10653,7 @@ void CensusDraw(const u8 *device_state, const DrawCall &call, const Targets &tar
   // The state key.
   uint64_t state = XXH3_64bits(device_state + kCensusFetchBegin, kCensusFloatBegin - kCensusFetchBegin);
   state = XXH3_64bits_withSeed(device_state + kCensusTailBegin, 10880 - kCensusTailBegin, state);
-  state = XXH3_64bits_withSeed(device_state + 11776, d3d::kDeviceSnapshotSize - 11776, state);  // katamari-nx: a chunk boundary (backend/queued.cpp)
+  state = XXH3_64bits_withSeed(device_state + 11904, d3d::kDeviceSnapshotSize - 11904, state);  // katamari-nx: a chunk boundary (backend/queued.cpp) (ilomilo-nx: 11776->11904, 11776->11904)
   const u32 call_words[6] = {call.primitive, call.start_index, call.start_vertex, call.count, u32(call.base_vertex),
                              u32(call.indexed) | u32(call.tessellation) << 1 | u32(call.up_vertices != nullptr) << 2 |
                                  u32(call.up_indices != nullptr) << 3};

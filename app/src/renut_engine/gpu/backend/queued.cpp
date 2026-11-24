@@ -389,7 +389,7 @@ constexpr u32 kDeltaUnreadEnd = kDeltaVertexF - 0x300;  // 0x480: the fetch cons
 // chunk before the one holding the vertex declaration). SA2: 11008-12224.
 // katamari-nx: a 64-byte chunk boundary, not a field: 11776 is still the last boundary before Beautiful Katamari's
 // vertex declaration (+11812), and the words between are private ones the render thread does not read.
-constexpr u32 kDeltaPrivateUnreadBegin = 10880, kDeltaPrivateUnreadEnd = 11776;
+constexpr u32 kDeltaPrivateUnreadBegin = 10880, kDeltaPrivateUnreadEnd = 11904;  // ilomilo-nx: 11776->11904
 constexpr bool DeltaChunkRead(u32 i) {
   const u32 at = DeltaChunkOffset(i);
   return !(at < kDeltaUnreadEnd || (at >= kDeltaPrivateUnreadBegin && at + 64 <= kDeltaPrivateUnreadEnd));
@@ -412,7 +412,7 @@ constexpr DeltaChunkList MakeDeltaChunkList(bool narrow) {
 }
 constexpr DeltaChunkList kDeltaAllChunks = MakeDeltaChunkList(false);
 constexpr DeltaChunkList kDeltaReadChunks = MakeDeltaChunkList(true);
-static_assert(kDeltaReadChunks.count == 39);  // N&B (SA2 40; bangaio-nx's XDK 20209: 40)
+static_assert(kDeltaReadChunks.count == 40);  // N&B 39 (SA2 40; bangaio-nx's XDK 20209: 40) (ilomilo-nx: XDK 20209, Bangai-O's layout: 40)
 
 // bangaio-nx (2026-10-29, banjo_renut_delta_masks, A/B 81 here, 73 in bangaio-nx): a chunk list as runs of whole chunks at consecutive
 // offsets, and each short chunk (the tail's last, 24 bytes in XDK 20209) as a run of its own. CaptureDelta asks

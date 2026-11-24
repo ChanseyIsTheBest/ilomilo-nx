@@ -1,13 +1,13 @@
-# katamari-nx: one PC test run of app/out/pc/renut.exe: minimised, muted, its own log, PNG captures every N seconds
+﻿# katamari-nx: one PC test run of app/out/pc/renut.exe: minimised, muted, its own log, PNG captures every N seconds
 # (nfsmw_captura_cada_s), stopped after -Seconds. Stops only the process it started.
 #   powershell -File tools/run_pc.ps1 -Seconds 120 -Name boot1 [-Every 15] [-Extra "--gpu_plugin=xenos --foo=1"]
 # The log is written unbuffered (log_file_writer = false): the run is stopped by force, which would drop the buffer.
 # -Visible: the window is shown (not minimised): Renut presents (and so captures and paces by vsync) only with a
 # swapchain, which a minimised window does not get.
 # -Game (blur-nx, 2026-11-18): another game folder (a web installer's game_root, with its .lz4b files, for example) in
-# place of Katamari's (passing --game_data_root in -Extra too would give the key twice).
+# place of ilomilo's (ilomilo-nx: D:/ilomilo/game, with the title update's default.xexp beside default.xex) (passing --game_data_root in -Extra too would give the key twice).
 param([int]$Seconds = 90, [string]$Name = "run", [int]$Every = 15, [string]$Extra = "", [switch]$Visible,
-      [string]$Game = "D:/beautifulkatamari/game")
+      [string]$Game = "D:/ilomilo/game")
 $root = Split-Path -Parent $PSScriptRoot
 $dir = Join-Path $root "app\out\pc"
 $exe = Join-Path $dir "renut.exe"

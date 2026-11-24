@@ -49,7 +49,9 @@ using namespace renut::gpu;
 // memory of resources N&B's code allocated itself.
 // katamari-nx: Beautiful Katamari's XMemFree is sub_824CAB98 (the hardware-device init frees with
 // `lis r4,0xB1800000; li r3,0; bl` to it where N&B's calls sub_822089F0).
-REX_IMPORT(__imp__sub_824CAB98, GameXMemFree, void(u32, u32));
+// ilomilo-nx: ilomilo's is sub_82276218 (Bangai-O's XMemFree sub_82165530, bangaio-nx's notes, pairs with it by a
+// unique shape, tools/d3d_propagate_ilomilo.py).
+REX_IMPORT(__imp__sub_82276218, GameXMemFree, void(u32, u32));
 // The kernel's physical memory, as XPhysicalAlloc / XPhysicalFree use it.
 REX_IMPORT(__imp__MmAllocatePhysicalMemoryEx, MmAllocatePhysicalMemoryEx,
            u32(u32, u32, u32, u32, u32, u32));
@@ -100,7 +102,7 @@ void FreeHeader(u32 va) {
 // Resource data: XMemAlloc's physical path for its attributes (0x822346A8:
 // the alignment from bits 24-27, the protection from bits 28-29), then
 // XPhysicalAlloc (0x826F1FB8), which asks the kernel. 0 on failure.
-constexpr u32 kGameNoLargePagesVa = 0x8315DFE0;  // XPhysicalAlloc drops MEM_LARGE_PAGES while set (katamari-nx: 0x82DA3778->0x8315DFE0)
+constexpr u32 kGameNoLargePagesVa = 0x826C3500;  // XPhysicalAlloc drops MEM_LARGE_PAGES while set (katamari-nx: 0x82DA3778->0x8315DFE0) (ilomilo-nx: 0x8315DFE0->0x826C3500)
 
 u32 AllocPhysical(u32 size, u32 attributes) {
   static constexpr u32 kAlignment[16] = {4,    4,    4,     8,     16,    32,     64,     128,
@@ -125,7 +127,7 @@ void FreePhysical(u32 va) {
 
 // The GPU format table (word_82005200): per D3D format low 6 bits, bits per
 // pixel in the low byte, flags in the high one.
-constexpr u32 kFormatTable = 0x820FA9D0;  // katamari-nx: 0x82005200->0x820FA9D0
+constexpr u32 kFormatTable = 0x8201A0E0;  // katamari-nx: 0x82005200->0x820FA9D0 (ilomilo-nx: 0x820FA9D0->0x8201A0E0)
 
 u16 FormatTableEntry(u32 format) {
   const auto *table = GuestPtr<const be_u16>(kFormatTable);
@@ -137,7 +139,7 @@ u32 FormatBitsPerPixel(u32 format) {
 }
 
 // The word at 0x82E108A0: set while a depth surface owns the HiZ memory.
-constexpr u32 kHiZOwnerVa = 0x8315E830;  // katamari-nx: 0x82E108A0->0x8315E830
+constexpr u32 kHiZOwnerVa = 0x826C1860;  // katamari-nx: 0x82E108A0->0x8315E830 (ilomilo-nx: 0x8315E830->0x826C1860)
 
 u32 LoadU32(u32 va) {
   const auto *p = GuestPtr<const be_u32>(va);
