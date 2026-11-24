@@ -413,6 +413,23 @@ Hand-written natives: none (they need console profile data past the gate).
     alike by both back ends at Renut's level (DXT1 55, 8 50, DXT4_5 61, 8_8_8_8 20). Next: a RenderDoc capture of
     Ryujinx at the title (tools/run_ryujinx_rdc.ps1, now pointed at this port's folders) and a pixel history
     (tools/rdc_pixel.py) at a blue pixel.
+  - **RenderDoc (out/emu_runs/rdc_emu1, frame 841, the title menu; out/rdc/emu1*):** pass 0 (56 draws into the
+    1280x720 colour target 1808) renders the 3D title scene correctly. The depth-of-field chain follows: a depth
+    resolve per tile (into R32F 1987), the scene's tiles resolved into 2394, then **draws of 24 vertices: a rectangle
+    list of 8 full-height strips 0.25 wide** (2394 + depth -> 2406, 2406 -> 2446, 2446 + depth -> 2406, 2406 ->
+    1808), and the menu (pass 9). The slanted wedges start at the first of them (event 664). Its geometry stage
+    (Renut's rectangle_list_gs, in Ryujinx's translation) is right: 48 vertices out, each fourth corner and its
+    texture coordinate correct (tools/rdc_mesh_gs.py, rdc_gsout_attrs.py). The pixel history of 2406 at event 664
+    (rdc_pixel.py): fragments `depthClipped`, one `shaderDiscarded`. The rectangles lie exactly on the far plane
+    (z = w = 1), where Renut's pipelines clip (`depthClipEnabled` always); with rounding some fragments fall past it
+    in the emulator, keep the last frame's pixels, and after the tile resolves and clears the composite shows the
+    clear colours. The PC driver keeps z = w.
+  - **Change (built next):** `ilomilo_renut_clip_disable` (on): a draw whose PA_CL_CLIP_CNTL has clip_disable (bit
+    16) gets a pipeline that clamps depth instead of clipping it, as the Xenos does not clip it (render/draw.cpp
+    MakeKey sets mode_control bit 3, render/pipeline.cpp `depthClipEnabled = !(bit 3)`); the first rectangle-list
+    clip controls are logged ("[ilomilo] a rectangle list with PA_CL_CLIP_CNTL ..."). If ilomilo leaves clipping on
+    for these passes, the fault is Ryujinx's rounding at the far plane and the console is expected to be clean (to
+    be checked there).
 
 ## SMAA (2026-11-25)
 
