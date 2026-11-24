@@ -27,6 +27,10 @@ committed or distributed.
 | SDK host binaries | the base's `sdk/out/win-amd64` (rexglue.exe and the SDK libraries, built from the same SDK sources at 680dee40) copied in for the first code generation | `tools/codegen.ps1` needs `rexglue.exe` before the first PC build makes its own |
 | First boot | the SDK's emulated GPU, Renut compiled out (`tools/build_pc.bat`'s default `RENUT=OFF`) | separates CPU / kernel problems from renderer problems (katamari-nx's and peggle2-nx's order of work); Renut's Direct3D hooks are at Katamari's XDK 2.0.5632 addresses and must be moved to ilomilo's 2.0.20209 first |
 | Register diet (codegen) | off for the first code generation (`non_volatile_as_local`, `elide_lr_stores`, `non_argument_as_local`) | each needs this game's own audit first (katamari-nx's order) |
+| `ilomilo_logo_hold_resume` | on | the logo's suspend was never resumed when the first frames were slow (the emulator's stall); it resumes only the device the game itself suspended, at the moment the game's own code would have |
+| `ilomilo_renut_gs_no_clip` | on | the console's pixels cannot change (the clip slot was already off for those draws); it removes Ryujinx's wedges and a few outputs a vertex |
+| `ilomilo_renut_clip_disable`, `ilomilo_renut_rect_depth_clamp` | built, off | tried for the wedges, neither changed the picture; left off so the default is the base's clipping |
+| Hot functions from Ryujinx | 32 more machine copies (emu17-emu20) | the request: machine copies from every profile, Ryujinx included; hand-written natives wait for console data |
 
 ## The game (2026-11-24)
 
@@ -453,7 +457,7 @@ Hand-written natives: none (they need console profile data past the gate).
     `ilomilo_renut_rect_depth_clamp`: rectangle lists clamped), since neither changed the emulator's picture.
   - A PC reference capture (tools/run_pc_rdc.ps1) was tried twice and gave no capture (the app's own trigger said
     FAILED; qrenderdoc's trigger fired but no file came): left for later.
-  - **The cause (tools/rdc_ms.py on the same capture, 06:30):** the blur draw's multisample state is plain (1 sample,
+  - **The cause (tools/rdc_ms.py on the same capture, 06:00):** the blur draw's multisample state is plain (1 sample,
     mask all ones, no alpha to coverage), but Ryujinx's translation of Renut's rectangle geometry shader declares
     `gl_ClipDistance[8]` and writes element 0 before every `EmitVertex` from **`gl_in[i].gl_ClipDistance[0]`, which
     the vertex shader never writes**: under `sasrt_gpu_clip_spec` a draw with no user clip plane gets its vertex
@@ -471,6 +475,18 @@ Hand-written natives: none (they need console profile data past the gate).
     already, so the same pixels, and a few outputs fewer a vertex. Ryujinx: no undefined clip distance. Test plan:
     emu21 with `sasrt_gpu_clip_spec = false` on the current NRO (the vertex shader writes a 0 distance again: the
     wedges should go, confirming the cause), then the build with the fix and emu22 with the normal toml.
+  - emu21 (`sasrt_gpu_clip_spec (off) 0` in its log): still coloured areas, but **of another shape**: whole
+    rectangular strips missing instead of diagonal halves, so the clip value does decide what is lost. A 0 in slot 0
+    is not enough because Ryujinx's GS also declares clip distances 1-3 (its epilogue writes elements 1-3 after the
+    last `EmitVertex`, so the emitted vertices carry undefined values there: uam's GS output covers the clip
+    distances as one group of four). Only a GS that writes no clip distance at all leaves Ryujinx none to clip with:
+    the fix's variant. emu22 (the build with the fix) decides.
+  - **emu22 (build a2bf63ec + this fix and 32 more copies, built-in settings, 120 s): fixed.** The Southend logo,
+    the title menu with its backdrop, the loading card and the first level with its pale sky are whole in every
+    capture (out/emu_runs/emu22_sheet.png); 56-60 fps; no error beyond the 894 `ResolvePath ... device not found`
+    lines every run has (the game probing device paths). The Switch-only picture fault was Ryujinx clipping on the
+    geometry shader's undefined clip distance; the console was expected clean before and is unchanged by the fix.
+    Handoff 6 for the base (D:\ilomilo\out).
 
 ## SMAA (2026-11-25)
 

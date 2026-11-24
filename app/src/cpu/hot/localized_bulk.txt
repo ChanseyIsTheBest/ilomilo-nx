@@ -99,7 +99,7 @@
 82245608 PC gameplay profile 2026-11-25 (prof1, 240 s: menus, story intro, first level): 1 samples, 64 instructions
 82250460 PC gameplay profile 2026-11-25 (prof1, 240 s: menus, story intro, first level): 1 samples, 106 instructions
 822594D8 PC gameplay profile 2026-11-25 (prof1, 240 s: menus, story intro, first level): 1 samples, 82 instructions
-# 2026-11-25 06:50: + 32 from the Ryujinx profiles of emu17-emu20 (build 14a84197, out/elf/renut_14a84197.elf;
+# 2026-11-25 06:10: + 32 from the Ryujinx profiles of emu17-emu20 (build 14a84197, out/elf/renut_14a84197.elf;
 # switch_hot_bulk.py --min-samples 1 --merge: its "console samples" are Ryujinx samples here). Left out: 22 under 40
 # instructions, 5 tiny leaves.
 821DECA0 30 console samples, 296 instructions, 0 direct callees
@@ -134,3 +134,16 @@
 82188520 2 console samples, 70 instructions, 6 direct callees
 821F95F0 2 console samples, 100 instructions, 0 direct callees
 821D5900 2 console samples, 56 instructions, 1 direct callees
+# 2026-11-25 06:50: + 11 from the Ryujinx profile of emu22 (build a2bf63ec with the GS fix, out/elf/renut_a2bf63ec_emu22.elf;
+# the title, the first level). Left out: 9 under 40 instructions, 1 tiny leaf.
+820B6608 3 console samples, 456 instructions, 13 direct callees
+821E7780 3 console samples, 106 instructions, 3 direct callees
+82347970 3 console samples, 100 instructions, 0 direct callees
+821AAFD8 3 console samples, 136 instructions, 4 direct callees
+8232C608 3 console samples, 90 instructions, 2 direct callees
+82209758 3 console samples, 76 instructions, 0 direct callees
+821E7D40 3 console samples, 118 instructions, 2 direct callees
+82209C08 3 console samples, 56 instructions, 0 direct callees
+821F8BA8 2 console samples, 126 instructions, 5 direct callees
+821DE4E0 2 console samples, 320 instructions, 0 direct callees
+8217FDF8 1 console samples, 368 instructions, 3 direct callees

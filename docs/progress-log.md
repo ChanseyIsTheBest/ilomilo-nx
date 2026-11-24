@@ -70,7 +70,7 @@ Times are AEST. The session runs until 23:04 on Wednesday 25 November 2026; no c
 - 05:00-05:55 RenderDoc on Ryujinx (rdc_emu1): the depth-of-field rectangle lists lose triangles; keys tried, each in
   its own run (emu16-emu20): clip_disable honoured, rectangle depth clamp, depth bias off, bias fields off, fast draws
   and provisional pipelines off: the same wedges every time. The movie hook built (ilomilo_wmv_ffmpeg.cpp).
-- 06:00-06:50 The cause found (tools/rdc_ms.py on the same capture): Ryujinx's translation of Renut's rectangle GS
+- 05:55-06:15 The cause found (tools/rdc_ms.py on the same capture): Ryujinx's translation of Renut's rectangle GS
   writes gl_ClipDistance[0] from the vertex shader's clip distance, which sasrt_gpu_clip_spec's vertex shaders (no
   plane: constant 929 = 0) never write. The console turns that clip slot off (plume noUserClip); Ryujinx clips with
   it. Fix: ilomilo_renut_gs_no_clip (on), no-clip variants of the rectangle and point-sprite GSs for those draws
