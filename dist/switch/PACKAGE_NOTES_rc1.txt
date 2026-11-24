@@ -11,22 +11,22 @@ What this NRO is
 What was tested, and how (no console was used)
 ----------------------------------------------
 - PC (Vulkan): boots, menus, the story intro and the first level played by an input script at 60 fps; the machine
-  copies checked against the generated code on every call (tools/run_pc_verify.ps1): the first 90 with 0
-  differences (guard1); the 46 added on 2026-11-25 from Ryujinx profiles: VERIFY RUN PENDING (docs/ilomilo-notes.md
-  has the result once it ran).
+  copies checked against the generated code on every call (tools/run_pc_verify.ps1, verify2): 133 of 133 reached,
+  137 million calls compared, 0 differences.
+- The full game, not the trial: license_mask = 1 is built into the NRO and set in every toml here; the release NRO
+  with only the player's default ilomilo.toml showed the full game's menus (Ryujinx, emu27).
 - Ryujinx (the everyday NRO with the same code): logo, title, menus, loading, the first level at 56-60 fps (an
   emulator's figure, not the console's). The emulator's picture fault (coloured wedges in the depth-of-field passes)
   is fixed (ilomilo_renut_gs_no_clip); on the console those draws already had their clip slot off.
 - The smaller files the installer makes: the Opus sound banks (.xmop, .opcm) load and play in Ryujinx (trial mode,
-  every bank). The upsell movie's H.265 is decoded by the NRO's hook; the trial's buy screen that plays it was not
-  reached by the scripted runs (it plays only in the trial: the full game never shows it).
+  every bank). The upsell movie's H.265 hook is built but untested: the movie plays only in the trial's buy screen,
+  and the full game (this build) never shows it.
 
 Please check on the console
 ---------------------------
 1. The picture: the title screen's backdrop and the levels' pale sky whole (no coloured wedges or strips).
 2. The sound: music, menu sounds and the narrator; anything that sounds wrong (the music is Opus at 128 kbit/s).
 3. Speed: configs/renut.toml writes logs/renut_001.log; its 10 s lines give the frame rate and the render thread.
-4. Only if you play the trial: the "unlock full game" page's movie (H.265 on NVDEC).
 
 A console profile (what the hand-written natives wait for)
 ----------------------------------------------------------

@@ -547,6 +547,47 @@ write under out/media and D:\ilomilo\game_media (game data: never committed).
     queued key events: presses made while loading are consumed by later screens, and a left-over A chose "single
     player" before the DOWNs came. emu_upsell3.toml presses nothing until the intro is surely over: START at 70 s
     (the title), DOWN six times at 75-80 s, A at 83 s.
+  - emu26_release (the release NRO, the media folder, trial, emu_upsell3.toml): the title says "press A to start" and
+    ignored START, so it waited until about 88 s; the queued DOWNs then walked the menu (single player, gallery, help
+    & options) and the log ends at script time 78 s (the script's clock starts at the first poll, ~17 s after boot):
+    whether the upsell page opened is not recorded. **Stopped there on purpose:** the user asked (2026-11-25, 08:00)
+    to make sure the game runs in non-trial mode, and the movie plays only in the trial. The hook stays built,
+    untested; the full game never reaches it.
+
+## The full game, not the trial (2026-11-25, the user: "Make sure the game runs in non trial modr")
+
+- **The Switch NRO** has `license_mask = 1` built in (app/ilomilo_switch_defaults.toml, compiled in by
+  KATAMARI_BUILTIN_CONFIG) and every shipped toml says so too (renut.toml, renut_play.toml, renut_ab.toml and the 8 in
+  configs/: `license_mask = 1`); the player's ilomilo.toml (app/ilomilo_switch.toml) does not set it, so the built-in
+  1 holds. The trial runs above set `license_mask = 0` in their own test tomls only.
+- **Checked:** emu27_release_full, the release NRO (app/out/switch-release) with the player's default ilomilo.toml
+  only and the master game folder: the full game's main menu ("download content", no "unlock full game"), "prologue
+  / meet up", the loading card and the first level; `[deko3d] GLSL package: 218 shaders, 979 KB` read from
+  deko3d_glsl.bin beside the NRO.
+- **The PC** has no built-in config (its log: "No config file at ...\renut.toml: defaults"), and the SDK's own default
+  is 0. Its runs showed the full game anyway (play1: "download content", "select a story", the prologue), but it is
+  now explicit: tools/run_pc.ps1 passes `--license_mask=1` (`-License 0` for a trial test).
+
+## Release candidate 1 (2026-11-25)
+
+- **The NRO:** tools/ilomilo_build_switch_release.bat (new): app/out/switch-release, the everyday build's 70 options
+  but `BANJO_RENUT_RELEASE_SHADERS=ON` (no game shader inside; tools/renut_release_shaders.py first), no PGO or LTO
+  (they wait for the user). 13 minutes, 43.8 MB (the everyday one 45.8 MB).
+- **The DKSH cache:** tools/deko3d_variant_cache.py on Ryujinx's pipeline list (out/pipeline_lists/ryujinx_0716.bin):
+  1,326 pipelines, 293 variants, 0 failed, 965 KB (out/deko3d_shaders/deko3d_shaders.bin, in the package).
+- **The machine copies, verified** (`verify2`: tools/run_pc_verify.ps1 -Seconds 240, the PC build with the 136-line
+  list): 133 of 133 copies reached and on, **137.1 million calls compared, 0 differences** (20.5 million not
+  comparable: stopped in both forms with the same stores before a real call); generated-code self-checks, r1 mirror,
+  stack forwards, flush-mode flow: 0 differences. (Two Windows-only breaks in ilomilo_frame_diag.cpp fixed first:
+  pthread.h and _Unwind_Backtrace.)
+- **The web installer's release** (D:\ilomilo\ilomilo-nx-installer, commit 032c89b, local): make_release.py --version
+  0.1.0 with Title Update #1 and the 16 records (218 shaders: 83 in default.xex, 135 in the game's files);
+  test/full_node.mjs --opus --reference (2 min: 444 variants, 8 banks as .xmop, startup as .opcm, 145 -> 97 MB packed)
+  and test/check_zip.py: **OK** (it now checks `.opcm` too: the segments cover the original, every byte outside the
+  samples equal); test/check_release.py: git stores the 4 release files the manifest names. Node has no H.265
+  encoder, so its zip keeps the movie as it is (ZXC); the page encodes it in the browser.
+- **The release NRO in Ryujinx:** emu26 (trial, the media folder) and emu27 (full game, master folder) both drew
+  from deko3d_glsl.bin; 60 fps in emu26's 10 s reports (an emulator's figure).
 - **Packing** (measured with the installer's own codecs, `out/media/pack_measure.txt`): textures LZ4 55.5 % (ZXC
   no smaller), fonts ZXC 60 %, the PCM bank ZXC 74 % when it is not `.opcm`, the `.par` (deflated), PNGs and the
   executables as they are; the rest LZ4. The XMA banks pack to 98 %: their `.xmop` stays unpacked (the 5 % rule).
