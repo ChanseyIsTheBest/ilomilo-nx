@@ -169,6 +169,13 @@ REXCVAR_DEFINE_BOOL(ilomilo_renut_clip_disable, true, "Banjo/Enhancements",
                     "was clipped: rectangles drawn exactly on the far plane lost pieces where rounding put them past it "
                     "(ilomilo's depth-of-field passes in Ryujinx). Off: every draw clipped, as before")
     .lifecycle(rex::cvar::Lifecycle::kInitOnly);
+REXCVAR_DEFINE_BOOL(ilomilo_renut_rect_depth_clamp, true, "Banjo/Enhancements",
+                    "From ilomilo-nx: rectangle lists (the Xenos' screen-space rectangles) clamp depth instead of being "
+                    "clipped at the near and far planes. A rectangle inside the depth range gives the same pixels either "
+                    "way; ilomilo's depth-of-field rectangles lie exactly on the far plane (z = w), where Ryujinx dropped "
+                    "pieces of them (wedges of the last frame, the tiles' clear colours in the picture). Off: clipped as "
+                    "every other draw")
+    .lifecycle(rex::cvar::Lifecycle::kInitOnly);
 REXCVAR_DEFINE_BOOL(rr6_user_clip_plane, true, "Banjo/Enhancements",
                     "From rr6-nx and vivapinata-nx: the game's user clip plane 0 (SetClipPlane, PA_CL_CLIP_CNTL bit 0) reaches the "
                     "vertex shaders, as the GPU clips with it (Ridge Racer 6's car reflections, Viva Pinata's water). Every vertex "
@@ -485,6 +492,10 @@ bool UserClipPlaneOn() {
 }
 bool IlomiloClipDisableOn() {
   static const bool on = REXCVAR_GET(ilomilo_renut_clip_disable);
+  return on;
+}
+bool IlomiloRectDepthClampOn() {
+  static const bool on = REXCVAR_GET(ilomilo_renut_rect_depth_clamp);
   return on;
 }
 bool TextureSignsOn() {

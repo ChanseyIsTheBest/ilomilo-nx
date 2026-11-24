@@ -8227,6 +8227,12 @@ PipelineKey MakeKey(const GuestDevice &device, const ShaderRecord *vs, const Sha
   // frame's pixels in wedges.
   if (banjo::renut_gpu::IlomiloClipDisableOn() && (u32(cp.ClipControl) & 0x10000u))
     key.mode_control |= 8u;
+  // ilomilo-nx (2026-11-25, ilomilo_renut_rect_depth_clamp): rectangle lists (the Xenos' screen-space rectangles) clamp
+  // depth too. ilomilo draws its depth-of-field rectangles with clipping on (PA_CL_CLIP_CNTL 00080000) exactly on the
+  // far plane, z = w = 1: inside the clip volume, and what a correct GPU keeps (the PC's driver does), but Ryujinx lost
+  // fragments of them there. Clamped, a rectangle inside the depth range gives the same pixels as clipped.
+  if (primitive == kRectangleList && banjo::renut_gpu::IlomiloRectDepthClampOn())
+    key.mode_control |= 8u;
   key.alpha_to_coverage = (u32(cp.ColorControl) >> 4) & 1;
   if (primitive == kRectangleList) {
     if (State().rectangle_list_gs)
