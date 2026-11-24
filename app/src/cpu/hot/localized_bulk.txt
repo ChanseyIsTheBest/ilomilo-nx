@@ -99,3 +99,38 @@
 82245608 PC gameplay profile 2026-11-25 (prof1, 240 s: menus, story intro, first level): 1 samples, 64 instructions
 82250460 PC gameplay profile 2026-11-25 (prof1, 240 s: menus, story intro, first level): 1 samples, 106 instructions
 822594D8 PC gameplay profile 2026-11-25 (prof1, 240 s: menus, story intro, first level): 1 samples, 82 instructions
+# 2026-11-25 06:50: + 32 from the Ryujinx profiles of emu17-emu20 (build 14a84197, out/elf/renut_14a84197.elf;
+# switch_hot_bulk.py --min-samples 1 --merge: its "console samples" are Ryujinx samples here). Left out: 22 under 40
+# instructions, 5 tiny leaves.
+821DECA0 30 console samples, 296 instructions, 0 direct callees
+822094B8 13 console samples, 90 instructions, 0 direct callees
+82311150 9 console samples, 252 instructions, 7 direct callees
+821DF140 8 console samples, 78 instructions, 0 direct callees
+821F4D98 8 console samples, 686 instructions, 3 direct callees
+821E8360 6 console samples, 104 instructions, 6 direct callees
+82212990 6 console samples, 54 instructions, 0 direct callees
+82435F88 5 console samples, 58 instructions, 0 direct callees
+821891F0 5 console samples, 40 instructions, 1 direct callees
+82195D38 4 console samples, 54 instructions, 1 direct callees
+821DFAF0 3 console samples, 42 instructions, 1 direct callees
+821A2BF8 3 console samples, 98 instructions, 1 direct callees
+821F3828 3 console samples, 62 instructions, 5 direct callees
+82310C08 3 console samples, 228 instructions, 9 direct callees
+8215FEA0 3 console samples, 42 instructions, 0 direct callees
+821881B0 3 console samples, 88 instructions, 3 direct callees
+821E0ED0 3 console samples, 440 instructions, 2 direct callees
+82209698 3 console samples, 48 instructions, 0 direct callees
+823178A0 3 console samples, 70 instructions, 0 direct callees
+82308E20 3 console samples, 50 instructions, 0 direct callees
+8244AD20 3 console samples, 454 instructions, 0 direct callees
+82308328 3 console samples, 88 instructions, 2 direct callees
+8222C910 3 console samples, 166 instructions, 0 direct callees
+820BAEC8 2 console samples, 368 instructions, 11 direct callees
+82190AE0 2 console samples, 264 instructions, 7 direct callees
+8243FD00 2 console samples, 716 instructions, 13 direct callees
+821A2FE0 2 console samples, 102 instructions, 0 direct callees
+82199FC8 2 console samples, 86 instructions, 4 direct callees
+8234EF60 2 console samples, 126 instructions, 3 direct callees
+82188520 2 console samples, 70 instructions, 6 direct callees
+821F95F0 2 console samples, 100 instructions, 0 direct callees
+821D5900 2 console samples, 56 instructions, 1 direct callees

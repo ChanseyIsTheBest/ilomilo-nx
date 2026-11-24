@@ -327,10 +327,16 @@ std::unique_ptr<plume::RenderPipeline> Build(const PipelineKey &key, const Pipel
   desc.pipelineLayout = s.draw_layout.get();
   desc.vertexShader = inputs.vertex_shader;
   desc.pixelShader = inputs.pixel_shader;
+  // ilomilo-nx (2026-11-25, ilomilo_renut_gs_no_clip): key bit 3 of reserved clear is exactly when the vertex shader
+  // gets constant 929 = 0 below (sasrt_gpu_clip_spec: no plane), so it writes no clip distance: the geometry shader
+  // then writes none either (the usual one passed the unwritten output on, which Ryujinx clipped with).
+  const bool gs_no_clip = !(key.reserved & 8u) && key.vertex_shader;
   if (key.rectangle_list)
-    desc.geometryShader = s.rectangle_list_gs.get();
+    desc.geometryShader = gs_no_clip && s.rectangle_list_noclip_gs ? s.rectangle_list_noclip_gs.get()
+                                                                   : s.rectangle_list_gs.get();
   if (key.point_sprite)
-    desc.geometryShader = s.point_sprite_gs.get();
+    desc.geometryShader = gs_no_clip && s.point_sprite_noclip_gs ? s.point_sprite_noclip_gs.get()
+                                                                 : s.point_sprite_gs.get();
   desc.primitiveTopology = key.topology;
 
   // PA_SU_SC_MODE_CNTL: cull front 0, cull back 1, front face clockwise 2.

@@ -176,6 +176,16 @@ REXCVAR_DEFINE_BOOL(ilomilo_renut_rect_depth_clamp, false, "Banjo/Enhancements",
                     "pieces of them (wedges of the last frame, the tiles' clear colours in the picture). Off: clipped as "
                     "every other draw")
     .lifecycle(rex::cvar::Lifecycle::kInitOnly);
+// ilomilo-nx (2026-11-25): the host geometry shaders without the clip distance where the vertex shader writes none.
+REXCVAR_DEFINE_BOOL(ilomilo_renut_gs_no_clip, true, "Banjo/Enhancements",
+                    "From ilomilo-nx: rectangle lists and point sprites drawn by a draw whose vertex shader writes no "
+                    "clip distance (sasrt_gpu_clip_spec: no user clip plane set) go through geometry shaders that write "
+                    "none either (rectangle_list_noclip_gs, point_sprite_noclip_gs). The usual ones passed the vertex "
+                    "shader's unwritten output on as their clip distance: the console's clip slot is off for those "
+                    "draws (plume_deko3d noUserClip) and ignores it, but Ryujinx clips with what the last stage writes "
+                    "and cut ilomilo's depth-of-field rectangles into wedges (the tiles' clear colours in the picture). "
+                    "Same pixels on the console, fewer outputs a vertex. Off: the usual geometry shaders for every draw")
+    .lifecycle(rex::cvar::Lifecycle::kInitOnly);
 REXCVAR_DEFINE_BOOL(rr6_user_clip_plane, true, "Banjo/Enhancements",
                     "From rr6-nx and vivapinata-nx: the game's user clip plane 0 (SetClipPlane, PA_CL_CLIP_CNTL bit 0) reaches the "
                     "vertex shaders, as the GPU clips with it (Ridge Racer 6's car reflections, Viva Pinata's water). Every vertex "
@@ -496,6 +506,10 @@ bool IlomiloClipDisableOn() {
 }
 bool IlomiloRectDepthClampOn() {
   static const bool on = REXCVAR_GET(ilomilo_renut_rect_depth_clamp);
+  return on;
+}
+bool IlomiloGsNoClipOn() {
+  static const bool on = REXCVAR_GET(ilomilo_renut_gs_no_clip);
   return on;
 }
 bool TextureSignsOn() {

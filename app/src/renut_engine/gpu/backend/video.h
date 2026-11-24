@@ -228,6 +228,10 @@ struct VideoState {
   // Expands point-list draws into point sprites (pipeline.cpp); null like
   // rectangle_list_gs, which leaves them single-pixel points.
   std::unique_ptr<plume::RenderShader> point_sprite_gs;
+  // ilomilo-nx (2026-11-25, ilomilo_renut_gs_no_clip): the two without the clip distance, for the draws whose vertex
+  // shader writes none (pipeline.cpp); null when the key is off or without geometry shader support.
+  std::unique_ptr<plume::RenderShader> rectangle_list_noclip_gs;
+  std::unique_ptr<plume::RenderShader> point_sprite_noclip_gs;
 
   // Layout of the recompiled guest shaders (see pipeline.h).
   std::unique_ptr<plume::RenderPipelineLayout> draw_layout;

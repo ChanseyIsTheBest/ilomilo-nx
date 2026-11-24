@@ -37,6 +37,7 @@
 #include "renut_engine/gpu/backend/render_thread.h"
 #include "renut_engine/gpu/backend/video_internal.h"
 #include "renut_engine/gpu/banjo_renut_tuning.h"
+#include "renut_engine/gpu/ultimate.h"  // ilomilo-nx (2026-11-25): IlomiloGsNoClipOn
 #include "renut_engine/gpu/banjo_renut_record.h"  // banjo-nx (package 28b): banjo_renut_record_worker
 #include "renut_engine/gpu/render/surfaces.h"  // banjo-nx (2026-10-28): NoteGpuFrameForDynamicResolution
 #include <rex/frame_latency.h>  // banjo-nx (2026-10-20): the latency probe's "input -> GPU done"
@@ -53,6 +54,8 @@
 #include "host_shaders/present_vs.spirv.h"
 #include "host_shaders/rectangle_list_gs.spirv.h"
 #include "host_shaders/point_sprite_gs.spirv.h"
+#include "host_shaders/rectangle_list_noclip_gs.spirv.h"  // ilomilo-nx (2026-11-25)
+#include "host_shaders/point_sprite_noclip_gs.spirv.h"    // ilomilo-nx (2026-11-25)
 #include "host_shaders/stream_convert_cs.spirv.h"
 #include "host_shaders/fetch_copy_cs.spirv.h"  // sasrt-nx (2026-11-08)
 #include "host_shaders/texel_readback_cs.spirv.h"  // sasrt-nx (2026-11-08)
@@ -74,6 +77,8 @@
 #include "host_shaders/present_vs.deko3d.h"
 #include "host_shaders/rectangle_list_gs.deko3d.h"
 #include "host_shaders/point_sprite_gs.deko3d.h"
+#include "host_shaders/rectangle_list_noclip_gs.deko3d.h"  // ilomilo-nx (2026-11-25)
+#include "host_shaders/point_sprite_noclip_gs.deko3d.h"    // ilomilo-nx (2026-11-25)
 #include "host_shaders/stream_convert_cs.deko3d.h"
 #include "host_shaders/fetch_copy_cs.deko3d.h"  // sasrt-nx (2026-11-08)
 #include "host_shaders/texel_readback_cs.deko3d.h"  // sasrt-nx (2026-11-08)
@@ -96,6 +101,8 @@
 #include "host_shaders/present_vs.dxil.h"
 #include "host_shaders/rectangle_list_gs.dxil.h"
 #include "host_shaders/point_sprite_gs.dxil.h"
+#include "host_shaders/rectangle_list_noclip_gs.dxil.h"  // ilomilo-nx (2026-11-25)
+#include "host_shaders/point_sprite_noclip_gs.dxil.h"    // ilomilo-nx (2026-11-25)
 #include "host_shaders/stream_convert_cs.dxil.h"
 #include "host_shaders/fetch_copy_cs.dxil.h"  // sasrt-nx (2026-11-08)
 #include "host_shaders/texel_readback_cs.dxil.h"  // sasrt-nx (2026-11-08)
@@ -420,6 +427,13 @@ void BuildRectangleListShader(VideoState &s) {
       CreateHostShader(s.device.get(), RENUT_HOST_SHADER(rectangle_list_gs), "rectangle_list_gs");
   s.point_sprite_gs =
       CreateHostShader(s.device.get(), RENUT_HOST_SHADER(point_sprite_gs), "point_sprite_gs");
+  // ilomilo-nx (2026-11-25, ilomilo_renut_gs_no_clip): see shaders/host/rectangle_list_gs.hlsl.
+  if (banjo::renut_gpu::IlomiloGsNoClipOn()) {
+    s.rectangle_list_noclip_gs = CreateHostShader(s.device.get(), RENUT_HOST_SHADER(rectangle_list_noclip_gs),
+                                                  "rectangle_list_noclip_gs");
+    s.point_sprite_noclip_gs =
+        CreateHostShader(s.device.get(), RENUT_HOST_SHADER(point_sprite_noclip_gs), "point_sprite_noclip_gs");
+  }
 }
 
 // See shaders/host/stream_convert_cs.hlsl.

@@ -440,7 +440,10 @@ Hand-written natives: none (they need console profile data past the gate).
   - More of the capture: across the first rectangle, some pixels have no fragment of the blur draws at all and
     the others are `sampleMasked` (some also `shaderDiscarded`: its alpha test). The same draw had the shadow pass's
     depth bias (13422 / slope 2.0) bound; but emu18 (`rr6_depth_bias = false`) and emu19
-    (`sasrt_rt3_depth_bias_fields = false`) show the same wedges, so the bias is not it either.
+    (`sasrt_rt3_depth_bias_fields = false`) show the same wedges, so the bias is not it either. emu20
+    (`banjo_renut_fast_draw = false`, `blur_renut_provisional_key_kept = false`: 0 fast draws, 9,745 full, every
+    pipeline built for its own key) shows the same wedges as well: neither the fast path nor the reuse of a
+    provisional pipeline is the cause.
   - **Where it stands:** the rectangle list's geometry stage emits the right rectangles (RenderDoc's post-geometry
     data), the PC's Vulkan path draws the same passes correctly with the same geometry shader, and the deko3d pipeline
     binds the geometry stage; in Ryujinx the rectangles' second halves are not rasterised. This points at Ryujinx's
@@ -450,6 +453,24 @@ Hand-written natives: none (they need console profile data past the gate).
     `ilomilo_renut_rect_depth_clamp`: rectangle lists clamped), since neither changed the emulator's picture.
   - A PC reference capture (tools/run_pc_rdc.ps1) was tried twice and gave no capture (the app's own trigger said
     FAILED; qrenderdoc's trigger fired but no file came): left for later.
+  - **The cause (tools/rdc_ms.py on the same capture, 06:30):** the blur draw's multisample state is plain (1 sample,
+    mask all ones, no alpha to coverage), but Ryujinx's translation of Renut's rectangle geometry shader declares
+    `gl_ClipDistance[8]` and writes element 0 before every `EmitVertex` from **`gl_in[i].gl_ClipDistance[0]`, which
+    the vertex shader never writes**: under `sasrt_gpu_clip_spec` a draw with no user clip plane gets its vertex
+    shader with constant 929 = 0 (no clip distance), while rectangle_list_gs.hlsl (and point_sprite_gs.hlsl) still
+    pass `SV_ClipDistance0` through. On the console plume turns the clip slot off for such a pipeline (noUserClip,
+    plume_deko3d.cpp createGraphicsPipeline: constant 929 = 0), so the hardware ignores that output; Ryujinx clips
+    with whatever the last stage writes (the base's own note on `banjo_deko3d_user_clip_enable`), so each rectangle
+    is cut on an undefined value. That explains the wedges (whole or partial triangles), RenderDoc's "clipped" flags,
+    and why none of the depth, bias, hand-over or fast-path keys mattered. **Expected clean on the console** as it is.
+  - **Fix: `ilomilo_renut_gs_no_clip` (on).** rectangle_list_noclip_gs.hlsl and point_sprite_noclip_gs.hlsl (the
+    same shaders with `RENUT_GS_NO_CLIP`: an output vertex without the clip distance; built by gpu.cmake's
+    renut_host_shader, which now takes the included file as a dependency), used by render/pipeline.cpp Build when
+    the key's reserved bit 3 is clear (exactly the draws whose vertex shader gets 929 = 0). The usual shaders are
+    unchanged (the deko3d blob is byte-identical: 302,517 bytes). Console: the clip slot was off for those draws
+    already, so the same pixels, and a few outputs fewer a vertex. Ryujinx: no undefined clip distance. Test plan:
+    emu21 with `sasrt_gpu_clip_spec = false` on the current NRO (the vertex shader writes a 0 distance again: the
+    wedges should go, confirming the cause), then the build with the fix and emu22 with the normal toml.
 
 ## SMAA (2026-11-25)
 
