@@ -163,13 +163,13 @@ REXCVAR_DEFINE_BOOL(halo3_renut_loop_constants, true, "Banjo/Enhancements",
 
 // rr6-nx (2026-11-03, 45bbd0e09c) and vivapinata-nx (f346dd4963), for every vertex shader here.
 // ilomilo-nx (2026-11-25): PA_CL_CLIP_CNTL's clip_disable honoured (render/draw.cpp MakeKey, render/pipeline.cpp).
-REXCVAR_DEFINE_BOOL(ilomilo_renut_clip_disable, true, "Banjo/Enhancements",
+REXCVAR_DEFINE_BOOL(ilomilo_renut_clip_disable, false, "Banjo/Enhancements",
                     "From ilomilo-nx: a draw whose PA_CL_CLIP_CNTL has clip_disable (bit 16) set is not clipped at the "
                     "near and far planes: its depth is clamped instead, as the Xenos does not clip it. Before, every draw "
                     "was clipped: rectangles drawn exactly on the far plane lost pieces where rounding put them past it "
                     "(ilomilo's depth-of-field passes in Ryujinx). Off: every draw clipped, as before")
     .lifecycle(rex::cvar::Lifecycle::kInitOnly);
-REXCVAR_DEFINE_BOOL(ilomilo_renut_rect_depth_clamp, true, "Banjo/Enhancements",
+REXCVAR_DEFINE_BOOL(ilomilo_renut_rect_depth_clamp, false, "Banjo/Enhancements",
                     "From ilomilo-nx: rectangle lists (the Xenos' screen-space rectangles) clamp depth instead of being "
                     "clipped at the near and far planes. A rectangle inside the depth range gives the same pixels either "
                     "way; ilomilo's depth-of-field rectangles lie exactly on the far plane (z = w), where Ryujinx dropped "

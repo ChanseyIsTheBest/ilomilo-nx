@@ -437,6 +437,19 @@ Hand-written natives: none (they need console profile data past the gate).
     StateUpdater.UpdateDepthClampState), so the clamp did reach it: the "depthClipped" flags may not be the cause.
     Next: a capture of this build, the blur draw's pixel history again, and its pixel shader (the one
     `shaderDiscarded` fragment: the depth-of-field shader may discard by the depth it samples).
+  - More of the capture: across the first rectangle, some pixels have no fragment of the blur draws at all and
+    the others are `sampleMasked` (some also `shaderDiscarded`: its alpha test). The same draw had the shadow pass's
+    depth bias (13422 / slope 2.0) bound; but emu18 (`rr6_depth_bias = false`) and emu19
+    (`sasrt_rt3_depth_bias_fields = false`) show the same wedges, so the bias is not it either.
+  - **Where it stands:** the rectangle list's geometry stage emits the right rectangles (RenderDoc's post-geometry
+    data), the PC's Vulkan path draws the same passes correctly with the same geometry shader, and the deko3d pipeline
+    binds the geometry stage; in Ryujinx the rectangles' second halves are not rasterised. This points at Ryujinx's
+    handling of this geometry-shader path, not at the port; **the console has to decide** (the user's next step:
+    the title screen's backdrop and the levels' pale sky must be whole). The two keys tried here stay in the build
+    **off** (`ilomilo_renut_clip_disable`: the Xenos' clip_disable honoured with depth clamping;
+    `ilomilo_renut_rect_depth_clamp`: rectangle lists clamped), since neither changed the emulator's picture.
+  - A PC reference capture (tools/run_pc_rdc.ps1) was tried twice and gave no capture (the app's own trigger said
+    FAILED; qrenderdoc's trigger fired but no file came): left for later.
 
 ## SMAA (2026-11-25)
 
