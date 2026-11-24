@@ -13,5 +13,10 @@
 "0x821D2BC0" = { end = 0x821D2C00 }
 "0x821ED498" = { end = 0x821ED4D8 }
 "0x821EEE30" = { end = 0x821EEE70 }
+# The register diet (2026-11-25, tools/read_before_write.py on out/audit/gen2): two software-pipelined vector loops read
+# v14-v21 / v24 at their loop heads before the loop body writes them (the first pass's values are rotated out). Kept
+# exact: they share their caller's registers, so those reads see what the caller left, as on the console.
+"0x8241A8D0" = { share_registers = true }  # reads v14-v21 at loc_8241AA5C
+"0x8241B270" = { share_registers = true }  # reads v24
 # ilomilo-nx: the SDK's native CRT is not used (not included in the codegen; read by tools/post_codegen.py).
 [rexcrt]

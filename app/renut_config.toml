@@ -1,4 +1,4 @@
-# ilomilo-nx (ilomilo, title 58410A1B, XDK 2.0.20209, with Title Update #1) - ReXGlue codegen configuration.
+﻿# ilomilo-nx (ilomilo, title 58410A1B, XDK 2.0.20209, with Title Update #1) - ReXGlue codegen configuration.
 # The project keeps the base's internal name "renut" (generated/renut_*.h, the renut / renut_recomp targets,
 # out/renut_image.bin) so the base's CMake, post-codegen passes and renderer glue work unchanged; the NRO and the SD
 # folder are ilomilo-nx (docs/ilomilo-notes.md, "Decisions").
@@ -32,8 +32,49 @@ fp_copy_pairs = true
 fp_copy_forwarding = true
 div_inline = true
 fp_moves_modeless = true
-# The register "diet" keys (non_volatile_as_local, elide_lr_stores, non_argument_as_local) wait for this game's own
-# audits (tools/read_before_write.py, tools/non_argument_audit.py), as katamari-nx did (docs/ilomilo-notes.md).
+# The register "diet" keys, audited for ilomilo (2026-11-25; docs/ilomilo-notes.md, "The register diet"), as
+# katamari-nx did: on scratch code generations without them (out/audit/gen) and with them (out/audit/gen2):
+#   - non_volatile_as_local (r14-r31, f14-f31, v14-v31 as C++ locals: the __savegprlr / __restgprlr helpers and their
+#     guest-stack traffic go; on ARM they were ~20 % of Katamari's main thread): tools/read_before_write.py
+#     out/audit/gen2 --noreturn=8243B290: 16 functions. setjmp and its three callers (env.r* = r* copies: the codegen's
+#     setjmp handling); two `xor r30,r30,r30`; one `subfe` of one register; XDK code reading v64-v72 that nothing in the
+#     game sets (sub_82418DD8 ... sub_82479AC8: kept below, the whole v64-v127 as the base keeps it for the video
+#     codec); two software-pipelined vector loops reading v14-v24 at their loop heads (sub_8241A8D0, sub_8241B270:
+#     share_registers in config/renut_funcs.toml, so they read the caller's registers exactly as on the console).
+#   - elide_lr_stores: the link register is read by the prologues' saves, setjmp / longjmp (handled at their call
+#     sites) and four C runtime helpers that keep it in r31 and put it back before their blr (sub_82444400,
+#     sub_8244C7C0, sub_8244C86C, sub_8244C890); MSVC's unwind funclets save it like a prologue (`mflr r12` a few
+#     instructions in, then the store). The runtime never runs the guest's exception dispatch.
+#   - non_argument_as_local (r0, r2, r11, r12, f0, v32-v63 as locals): tools/non_argument_audit.py out/audit/gen
+#     --noreturn=8243B290: ENTRY 339 (the save / restore helpers, kept by name by the generator; MSVC unwind funclets
+#     reading their frame in r12, `addi r31,r12,-N`; a vector family saving / restoring v32-v63 through sub_8245CD60 /
+#     sub_8245D0A8), RET 15, HANDOVER 0. Every ENTRY and RET function that is not a helper is kept (124 below).
+non_volatile_as_local = true
+non_volatile_as_local_keep = ["v64-v127"]
+elide_lr_stores = true
+non_argument_as_local = true
+non_argument_as_local_keep = [
+    0x82127840, 0x821EB6D4, 0x821EB76C, 0x821EB8C0, 0x821EB940, 0x821EB96C, 0x821EBA90, 0x821EBB90,
+    0x821EBC78, 0x821EBD68, 0x821EC000, 0x821EC028, 0x821EC054, 0x821EC07C, 0x821EC0A4, 0x821EC0CC,
+    0x821EC2EC, 0x821EC318, 0x821EC344, 0x821EC370, 0x821EC398, 0x821EC3C0, 0x821EC3E8, 0x821EC4BC,
+    0x821EC9E0, 0x821ECAB4, 0x821ECEF0, 0x821ED098, 0x821ED308, 0x821ED330, 0x821ED35C, 0x821ED388,
+    0x821ED3B4, 0x821ED3E0, 0x821ED614, 0x821ED63C, 0x821ED668, 0x821ED694, 0x821ED6C0, 0x821EDE30,
+    0x821EDE58, 0x821EDE80, 0x821EDEA8, 0x821EDED0, 0x821EDEF8, 0x821EDF20, 0x821EE5FC, 0x821EE624,
+    0x821EE64C, 0x821EE674, 0x821EE69C, 0x821EE6C4, 0x82203888, 0x822790C0, 0x822790E8, 0x822793B4,
+    0x822793DC, 0x82279C78, 0x82279C98, 0x82390E98, 0x8239EA10, 0x823A1D40, 0x823A21C8, 0x823CEA20,
+    0x823D8B40, 0x8241A8D0, 0x8241B260, 0x82438C14, 0x82438C34, 0x82438F1C, 0x82438F3C, 0x824392C4,
+    0x824392E4, 0x82439484, 0x824394A4, 0x824395EC, 0x8243960C, 0x82439EB8, 0x8243A298, 0x8243A2C8,
+    0x8243A394, 0x8243A48C, 0x8243A4C4, 0x8243B1B4, 0x8243BCA4, 0x8243BCC4, 0x8243C06C, 0x8243C08C,
+    0x8243C32C, 0x8243C34C, 0x82442C4C, 0x82442C6C, 0x82442F48, 0x82442F74, 0x82443D00, 0x82443D20,
+    0x82443F48, 0x82443F68, 0x82444B50, 0x82446E9C, 0x82446EBC, 0x82447160, 0x8244718C, 0x82447BD4,
+    0x82447BF4, 0x8244A4B0, 0x8244A4D0, 0x8244A718, 0x8244A738, 0x8244C060, 0x8244C530, 0x8244C550,
+    0x8244CB74, 0x8244CB94, 0x82456460, 0x824598E8, 0x8245C2E0, 0x8245C400, 0x8245C518, 0x8245C688,
+    0x8245C7C8, 0x8245C970, 0x8245CD60, 0x8245D0A8,
+    # the setjmp caller sub_82254F48 copies r11 / r12 into its jump buffer (env.r11 = r11); its caller sub_82240A18, a
+    # setjmp caller too, still reports r11 not handed over (--with-option: HANDOVER 1): the jump buffer's copy of a
+    # volatile register, which longjmp's caller never reads (katamari-nx's "only the setjmp lines")
+    0x82254F48,
+]
 
 # setjmp / longjmp (peggle2-nx's method, by shape; tools/ppc_dis.py), the only `stfd f14,0(r3)` and `lfd f14,0(r7)`
 # in the code: setjmp 0x8243B6D0 tries a hook word first (`lis r4,0x826E; lwz r0,17492(r4); bnectr`), then `mflr`,

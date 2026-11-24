@@ -84,6 +84,28 @@ On the generated tree after post_codegen in full:
 So the machine copies' register liveness keeps the base's defaults (`SASRT_REG_LIVENESS_EXIT_ABI` and `_HOOKS_ABI`
 on); no `scratch_vectors_read_on_entry.txt`.
 
+## The register diet (2026-11-25)
+
+The three codegen keys the first code generation left out, audited as katamari-nx did, on scratch code generations
+(`out/audit/manifest_gen*.toml`: the app's config with absolute paths, out of the tree) without them (`gen`) and with
+them (`gen2`, then `gen3` with the marks):
+
+- `non_volatile_as_local`: `tools/read_before_write.py out/audit/gen2 --noreturn=8243B290`: 16 functions. setjmp and
+  its three callers (the jump buffer's `env.r* = r*` copies: the codegen's setjmp handling); two `xor r30,r30,r30`;
+  one `subfe` of one register; XDK code reading v64-v72 that nothing in the game sets (`non_volatile_as_local_keep =
+  ["v64-v127"]`, the base's range for the video codec); two software-pipelined vector loops reading v14-v24 at their
+  loop heads (`sub_8241A8D0`, `sub_8241B270`): `share_registers`, so they read the caller's registers as on the
+  console. On `gen3` (`--volatile`): only the setjmp caller `sub_82254F48`.
+- `elide_lr_stores`: every `mflr` in the code (53): prologue saves (MSVC's unwind funclets save it a few instructions
+  in), setjmp / longjmp, and four C runtime helpers that keep it in r31 and put it back before their `blr`
+  (`sub_82444400`, `sub_8244C7C0`, `sub_8244C86C`, `sub_8244C890`). Generated returns do not read the link register.
+- `non_argument_as_local`: `tools/non_argument_audit.py out/audit/gen --noreturn=8243B290`: ENTRY 339, RET 15,
+  HANDOVER 0. The save / restore helpers are kept by name by the generator; the other 124 (MSVC unwind funclets that
+  take their frame in r12, a vector family saving v32-v63 through `sub_8245CD60` / `sub_8245D0A8`, the RET ones) are
+  `non_argument_as_local_keep`, plus the setjmp caller `sub_82254F48`. On `gen3` (`--with-option`): ENTRY 340, RET 6,
+  HANDOVER 1: `sub_82240A18` (a setjmp caller) calling `sub_82254F48` without r11, the jump buffer's copy of a
+  volatile register (katamari-nx's "only the setjmp lines").
+
 ## The base's game layer taken out (2026-11-24)
 
 - Katamari's hot lists (`app/src/cpu/hot/localized.txt`, `localized_bulk.txt`, `hand.txt`) emptied; its stage
