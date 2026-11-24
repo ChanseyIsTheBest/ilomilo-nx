@@ -62,3 +62,8 @@ Times are AEST. The session runs until 23:04 on Wednesday 25 November 2026; no c
 - The user's new instruction (via the Ridge Racer 6 session): re-encode audio to Opus, the movie to H.265, and pack
   the files LZ4/ZXC. Started: the installer's XACT 3 reader (lib/xact3.js, container "xact"), game.json's audio
   section; all 435 XMA sounds (63.1 MB) qualify; startup.xwb (PCM) stays packed PCM.
+- 04:30-05:00 Media: .xmop for the 8 XMA banks (63.0 -> 53.0 MB, checks OK), .opcm for startup.xwb (17.5 -> 1.9 MB;
+  banjo's writer, byte-order guess fixed), the movie's H.265 (35.2 -> 13.4 MB) and its hook in the NRO source
+  (ilomilo_wmv_ffmpeg.cpp, not built yet), packing lists measured. Handoff 5 (installer: XACT 3, .opcm). Picture
+  fault: not an enhancement (all non-CPU items off, depth items off: same); draws are issued as on the PC; next a
+  RenderDoc capture of Ryujinx. Waiting for Poker Smash's builds (slot after).
