@@ -1,4 +1,4 @@
-﻿# ilomilo for the Switch: the fixed settings, compiled into the NRO (app/CMakeLists.txt, src/renut_app.h
+# ilomilo for the Switch: the fixed settings, compiled into the NRO (app/CMakeLists.txt, src/renut_app.h
 # BuiltInConfig) and applied before the SD card's ilomilo.toml, which holds the player's options (app/ilomilo_switch.toml).
 # Made from the base's (katamari-nx's) set: no log, no profilers, no diagnostics; rex_crash.log and rex_stderr.log stay.
 # ilomilo-nx (2026-11-25): Katamari's natives' keys and N&B's native copies' keys taken out; the picture as the Xbox 360

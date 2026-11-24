@@ -1,4 +1,4 @@
-﻿#!/usr/bin/env python3
+#!/usr/bin/env python3
 """ilomilo-nx (2026-11-24): Renut's Direct3D hooks (the base's: Beautiful Katamari's addresses, XDK 2.0.5632) moved to
 ilomilo's (XDK 2.0.20209).
 

@@ -1,4 +1,4 @@
-﻿#!/usr/bin/env python3
+#!/usr/bin/env python3
 """ilomilo-nx (2026-11-24): rewrites Renut's hard-coded Direct3D device offsets and guest data addresses from Beautiful
 Katamari's (XDK 2.0.5632, the base's layout) to ilomilo's (XDK 2.0.20209). docs/ilomilo-notes.md, "The device
 layout", has the evidence.

@@ -1,4 +1,4 @@
-﻿#!/usr/bin/env python3
+#!/usr/bin/env python3
 """ilomilo-nx (2026-11-25, from katamari-nx's tools/make_katamari_tomls.py): writes the package's tomls from the base's
 shipped renut.toml (tools/base_shipped_renut.toml: dist/switch/katamari-nx/renut.toml at the base's 680dee40, itself banjo-nx's set), with ilomilo's
 settings:

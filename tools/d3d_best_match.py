@@ -1,4 +1,4 @@
-﻿#!/usr/bin/env python3
+#!/usr/bin/env python3
 """ilomilo-nx (2026-11-24): the ilomilo functions most like a reference (Bangai-O) function, by the token alignment
 of tools/d3d_propagate_ilomilo.py (difflib ratio over opcode / register tokens), for the hooks the propagation left
 unpaired. Prints the best few with their ratio and length.

@@ -1,4 +1,4 @@
-﻿# ilomilo-nx: the bulk list of localized copies (tools/localize_native.py --bulk; their hooks go into the shard files
+# ilomilo-nx: the bulk list of localized copies (tools/localize_native.py --bulk; their hooks go into the shard files
 # app/generated/hot/banjo_hot_bulk_<k>.inc), made by tools/switch_hot_bulk.py --merge from this game's profiles
 # (Ryujinx, the PC, the console when the user sends a log). A line is "<address> <what>". Empty until then
 # (Katamari's list removed).

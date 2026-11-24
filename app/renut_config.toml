@@ -1,4 +1,4 @@
-﻿# ilomilo-nx (ilomilo, title 58410A1B, XDK 2.0.20209, with Title Update #1) - ReXGlue codegen configuration.
+# ilomilo-nx (ilomilo, title 58410A1B, XDK 2.0.20209, with Title Update #1) - ReXGlue codegen configuration.
 # The project keeps the base's internal name "renut" (generated/renut_*.h, the renut / renut_recomp targets,
 # out/renut_image.bin) so the base's CMake, post-codegen passes and renderer glue work unchanged; the NRO and the SD
 # folder are ilomilo-nx (docs/ilomilo-notes.md, "Decisions").

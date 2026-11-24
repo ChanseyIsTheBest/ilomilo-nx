@@ -303,6 +303,35 @@ Every sampled guest function (163) goes on the bulk list (`app/src/cpu/hot/local
 12 instructions or fewer) and those under 40 instructions with fewer than 50 samples (15; idea 30): **94 functions**.
 Hand-written natives: none (they need console profile data past the gate).
 
+- One more rule for a hand-made list: localize_native.py does not check a list's own entries against the app's hooks,
+  so Renut's hooked `sub_8220F0A8` (GetMipTailLevelOffsetCoords) linked twice ("duplicate symbol"); dropped with the
+  tool's own `Hooks([]).replaced()` filter. **90 copies** (three refused by the tool: `sub_82299C78` and
+  `sub_82298D58` read the time base, `sub_82282760` has MMIO-capable loads).
+- **Guard on the PC** (`guard1`: tools/run_pc_verify.ps1, `banjo_cpu_verify`, `banjo_hot_guard_calls = 4000`,
+  `banjo_hot_guard_period = 1`, 240 s through the menus into the first level): **90 of 90 copies reached, 95.2 million
+  calls compared, 0 differences** (8.9 million not comparable: stopped in both forms with the same stores before a
+  real call; one differed once and not when repeated: another thread changed its inputs). Generated-code checks,
+  r1 mirror, stack forwards, flush-mode flow: 0 differences.
+
+## The Switch build (2026-11-25)
+
+- Shader package (`tools/switch_shaders.ps1`, run during another session's build: single-threaded tools): all 218
+  shaders through Renut's XenosRecomp, the early-alpha pass, SPIR-V -> GLSL, the base's 48 GLSL passes and uam: 218
+  compiled, 0 failed (140 vertex DKSH, median 15 KB, largest 266 KB; 78 pixel, median 3 KB); the GLSL package 11 MB ->
+  979 KB (`app/out/renut_switch/deko3d_glsl.bin`), the Switch shader cache 51 KB + 1,016 KB of SPIR-V.
+- `tools/build_switch.bat` (app/out/switch, devkitA64, deko3d only: NVK not linked; the machine copies in place;
+  `BLUR_FPCR_ONE_MODE` ON): 1,041 steps in about 30 minutes; `renut.nro` 43.0 MB.
+
+## The first emulator runs (2026-11-25)
+
+- `emu1` (Ryujinx, 330 s): the NRO ran (it wrote its VFS index, installed the DLC, compiled pipelines into
+  `pipeline_list.bin` / `deko3d_shaders.bin`), but no log and no capture came back: the test toml was not applied. It
+  had keys twice (`log_level`, `banjo_stall_watch_seconds`, appended to a file that had them), and TOML refuses a
+  duplicate key, so the whole file was dropped and the built-in settings (no log) ran. Also found then: files written
+  with Windows PowerShell's `Set-Content -Encoding utf8` carry a UTF-8 BOM (Python's tomllib refuses it at line 1); the
+  built-in settings file had one (stripped; toml++ skips a BOM, so the NRO read it). `tools/make_emu_toml.py` now makes
+  the test tomls with the keys set in place and checks them with tomllib first.
+
 ## SMAA (2026-11-25)
 
 The final composite: `banjo_renut_diag_draw_log_s = 125` in gameplay (the CG-13 run, two frames of 161 draws): the
