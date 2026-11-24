@@ -291,6 +291,36 @@ The sites (`tools/census_sites.py --denormal`):
 **Verdict: keep `BLUR_FPCR_ONE_MODE` ON for the Switch (the base's default).** Run it again after a large change to the
 code generation, and in the later levels (the DLC's) once a script reaches them.
 
+## Hot functions: the machine track, first batch (2026-11-25)
+
+The PC profile (`prof1`: `banjo_pc_profile_s = 60`, 240 s: menus, the story intro and the first level;
+`out/pc_runs/prof1/pc_profile.log`, `tools/pc_hot_functions.py --guest`): guest code is a small share of the PC's
+busy samples. The main thread runs about a quarter of a core (`sub_820CE3E8` 5 %, `sub_82436070` 4 %, `sub_821D04F0`
+2.4 % of it); two worker threads (XThread9CA0 / 8E04) sit in `sub_821EE700` (11-13 % each: a wait loop, most likely);
+another worker in `sub_8229FE20` (3.8 %); the Audio Worker in `sub_8229C2D8`.
+
+Every sampled guest function (163) goes on the bulk list (`app/src/cpu/hot/localized_bulk.txt`), less the tiny leaves (5,
+12 instructions or fewer) and those under 40 instructions with fewer than 50 samples (15; idea 30): **94 functions**.
+Hand-written natives: none (they need console profile data past the gate).
+
+## SMAA (2026-11-25)
+
+The final composite: `banjo_renut_diag_draw_log_s = 125` in gameplay (the CG-13 run, two frames of 161 draws): the
+scene into the 1280x720 target, a clear, two full-screen rect-list passes into a second target (the depth-of-field
+blur: pixel shaders `5D2224AD595D5FCC`, `949ED45F4495B293`), then **`0B4973CE2EEC601A`**, a full-screen pass back into
+the main target (the depth-of-field composite), then the HUD (alpha-blended strips and quads). The same in both frames.
+`banjo_renut_smaa_after_ps = "0B4973CE2EEC601A"` (built-in settings and the package tomls): the PC's 10 s line then
+says "SMAA ... 600 frames" in gameplay. (Menus that draw no depth of field get no SMAA.)
+
+## Audio: the stereo check (2026-11-25, blur-nx's port 135)
+
+- `audio1` (`audio_channel_census = true`, the default speaker configuration 0x00010001): per 10 s of gameplay FL and FR
+  1,876 frames each, C 106-380, LFE 0, RL 0, RR 0: the game fills the front pair and a little centre.
+- `audio2` (`audio_speaker_config = 1`, analog stereo): FL / FR the same, **C still 0-283**, LFE / rears 0. ilomilo does
+  not fully mix stereo itself when told (XACT still sends some sounds to the centre), so the setting saves nothing as it
+  stands; a per-game patch (blur-nx's tools/stereo_mix.py) is worth it only if audio is near the top of a console
+  profile. The base's default stays. `audio_switch_pump_pairs` (+5.3 ms of latency for CPU) is the user's choice: off.
+
 ## Shaders (2026-11-24)
 
 - `tools/renut_shader_dump.py` on the image: 83 containers (69 vertex, 14 pixel): Direct3D's, XUI's and the video

@@ -1,9 +1,9 @@
-# katamari-nx: a PC verify run on Renut: every CPU enhancement checks itself on every use (banjo_cpu_verify), the guard on
+﻿# katamari-nx: a PC verify run on Renut: every CPU enhancement checks itself on every use (banjo_cpu_verify), the guard on
 # every call of every hook, the transform chain's own check on every call (docs/optimising-functions.md, "Checking"). For
 # a new game, move the save out of out/pc_user first (it changes the menu path; run_pc.ps1's --user_data_root comes first
 # and wins over a second one).
 #   powershell -File tools/run_pc_verify.ps1 [-Seconds 300] [-Name verify1] [-Every 15] [-Script "20:START,24:A"] [-Sticks 240]
-param([int]$Seconds = 300, [string]$Name = "verify1", [int]$Every = 15, [string]$Script = "", [int]$Sticks = 0)
+param([int]$Seconds = 300, [string]$Name = "verify1", [int]$Every = 15, [string]$Script = "", [int]$Sticks = 0, [string]$Extra = "")
 $root = Split-Path -Parent $PSScriptRoot
 # renut-ultimate (2026-11-11, port 78; sasrt-nx's idea 27): the guard runs the copies' logged forms (CMake
 # SASRT_HOT_GUARD_FORMS, ON by default on the PC). A PC build configured without them would check no native copy.
@@ -22,8 +22,9 @@ if ((Test-Path $cache) -and (Select-String -Path $cache -Pattern '^SASRT_HOT_IN_
                   "then tools\build_pc.bat")
     exit 2
 }
-$extra = "--banjo_cpu_verify=true --banjo_hot_guard_calls=4000 --banjo_hot_guard_period=1 " +
-         "--katamari_hand_transform_chain_verify=true --katamari_hand_sphere_box=true"
+# ilomilo-nx: Katamari's hand-native keys taken out (no hand natives here); -Extra adds the run's own keys.
+$extra = "--banjo_cpu_verify=true --banjo_hot_guard_calls=4000 --banjo_hot_guard_period=1"
+if ($Extra) { $extra += " $Extra" }
 # renut-ultimate (port 70, 2026-11-10): an empty --input_script= stopped the run at the command line ("1 required TEXT
 # missing"), so the documented command without -Script never started.
 if ($Script) { $extra += " --input_script=$Script" }

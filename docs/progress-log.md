@@ -32,3 +32,10 @@ Times are AEST. The session runs until 23:04 on Wednesday 25 November 2026; no c
   (tools/make_ilomilo_tomls.py) and README; Katamari's DLC pack list out. The calling-convention censuses clean. The
   register diet audited and turned on (keep list 125, two share_registers). The movie is the trial's upsell only.
 - Poker Smash's first build (from 00:17) holds the build slot; my rebuild waits for its "done".
+- 00:55-01:02 The diet build (8 min). 01:02 play1: the whole 720 lines (the tiling hooks reached), the first level
+  played by the script; 60 fps, self-checks 0. 01:05 CG-13 census (300 s): no site that matters, ONE_MODE stays on.
+  SMAA's composite found (0B4973CE2EEC601A, the depth-of-field pass): 600 frames per 10 s. The four log-decided keys
+  set (no command buffers, nothing inert, no redeem). Audio stereo check: the centre keeps sound with stereo set:
+  no saving. Handoffs 1-3 written in D:\ilomilo\out (gamma Flags at 5632, hook_bypass_check.py, installer deflate_raw).
+- The installer copy (D:\ilomilo\ilomilo-nx-installer) made: ilomilo's game.json (title update and DLC), icon,
+  the 16 shader records (tools/ilomilo_shader_records.py, checked by decoding).
