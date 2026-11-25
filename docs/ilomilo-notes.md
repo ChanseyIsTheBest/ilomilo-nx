@@ -536,6 +536,14 @@ says "SMAA ... 600 frames" in gameplay. (Menus that draw no depth of field get n
   story", the loading card and the first level played through several of its areas (20 captures); 48-60 fps in the
   10 s reports; no error beyond the usual ResolvePath lines; no crash. With verify4 on the PC, batch 1 goes into rc2.
 
+- **Why the NRO grew although the copies are in place** (the user asked; rc1 against rc2's ELF, aarch64 nm/size):
+  `.text` 32.86 -> 35.63 MB. The 500 batch-1 functions themselves shrank (1.83 MB generated -> 1.21 MB as copies in
+  place: the originals are dropped, as the user expected). The growth is 179 copies emitted a second time as
+  `banjo::hot::n_X::f_sub_X<Fast>(...).isra.0` (2.81 MB): the body other copies call directly (copy-to-copy calls
+  skip the hook), which the compiler kept out of line beside the in-place `sub_X` that inlines the same body. Batch 1
+  was chosen as callers of copies, so it has many such direct calls. Making the in-place `sub_X` and the direct-call
+  body one function would take most of that back: a copy-tool change for the base (not done here).
+
 ## Late input (2026-11-25)
 
 `banjo_late_input = true` (built in, and in every toml). It acts on the Switch build: emu22's `[latency]` lines (the

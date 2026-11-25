@@ -106,3 +106,8 @@ Times are AEST. The session runs until 23:04 on Wednesday 25 November 2026; no c
 - 11:10-11:25 emu31_rc2 (the release NRO, 632 copies in place, the player's settings, a quiet machine): clean, the
   full game into the first level. **rc2** packaged (D:\ilomilo\builds\2026-11-25_1117_rc2, NRO md5 0bd5b1d9...,
   commit 2a9c3cd6; replaces rc1, which has sub_820B3F90). Installer 0.1.1 (commit 6c9bc0b): full_node and check_zip OK.
+- 11:45-11:55 The user asked why the NRO grows when the copies are in place: 179 copies keep a second, direct-call
+  body (2.81 MB); the in-place functions themselves shrank (notes). The user asked for a release build to try on the
+  console with the release shaders in a separate file: D:\ilomilo\builds\2026-11-25_1149_rc2_console_PERSONAL (rc2's
+  NRO, deko3d_glsl.bin as its own file, the shader cache, the tomls, the game files with the title update, the DLC;
+  READ_ME_FIRST.txt; game data: the user's own console only, never committed). Batch 2's code pass runs meanwhile.
