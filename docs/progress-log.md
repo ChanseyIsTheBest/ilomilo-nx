@@ -95,3 +95,14 @@ Times are AEST. The session runs until 23:04 on Wednesday 25 November 2026; no c
   level. tools/run_pc.ps1 passes --license_mask=1. Trial-mode tests stopped (the movie is trial-only).
 - 08:06-08:16 verify2 (PC, 240 s): 133 of 133 copies, 137.1 million calls compared, 0 differences. rc1 packaged:
   D:\ilomilo\builds\2026-11-25_0814_rc1 (NRO md5 7d0a3611..., commit b700369b; no personal details, no game data).
+- 08:20-09:00 The guard build (Ryujinx emu28: 115 copies, 20.0 million calls, 0 differences; poison not acting there)
+  and the poison check on the PC (poison1: clean, the full game played). Handoff 7 (check_zip .opcm) and an index of
+  the handoffs (D:\ilomilo\out\README.md). Late input confirmed acting.
+- 09:00-10:15 Eligible batch 1 (tools/hot_eligible_batch.py: 500 callers of the copies; 5,222 eligible of 12,597):
+  post_codegen 16 min, Switch build 8 min, NRO +3.2 MB. verify3: one difference, in an OLD copy (sub_820B3F90, f1 on
+  a new input) -> kept out; rebuilt; verify4: 345 of 632 reached, 115.9 million calls, 0 differences.
+- 10:15-11:10 Two Ryujinx runs starved (the SEGA session's orphaned uam.exe held ~40-45 GB; one run refused at 7.7
+  GB free); the release NRO rebuilt. The SEGA session stopped its orphans at ~11:10.
+- 11:10-11:25 emu31_rc2 (the release NRO, 632 copies in place, the player's settings, a quiet machine): clean, the
+  full game into the first level. **rc2** packaged (D:\ilomilo\builds\2026-11-25_1117_rc2, NRO md5 0bd5b1d9...,
+  commit 2a9c3cd6; replaces rc1, which has sub_820B3F90). Installer 0.1.1 (commit 6c9bc0b): full_node and check_zip OK.
