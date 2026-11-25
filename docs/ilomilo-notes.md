@@ -30,6 +30,21 @@ committed or distributed.
 - **The user's decisions waiting:** PGO + LTO; the music at 96 kbit/s (about 11 MB less).
 - **Handoffs for the base:** D:\ilomilo\out (README.md lists the 7).
 
+## The first console run (2026-11-25, 17:56-18:00, rc3 with profiling on; the user)
+
+The user ran rc3 on the console and asked for its screenshots, videos and logs over FTP and for a CPU and GPU
+breakdown (out/console_runs/con1/breakdown.md has the tables; the files are there too, game screenshots included:
+never committed). The console's address went into out/switch_host.txt (192.168.1.197, as every port here) and the
+port's folder into out/switch_sd_root.txt (/switch/ilomilo-nx); the Album is on the emuMMC (/emuMMC/RAW1/Nintendo/
+Album), read only.
+- **It runs:** 58-64 fps in the menus, loading and the first level (handheld clocks), CPU 38-119 % of the 400 %
+  scale, GPU 8.3-11.4 ms a frame, 179 MB of GPU memory.
+- **Game thread** 30 % of a core on average (41-48 % in the level), 62 % of it in machine copies; **Opus decoding**
+  up to 20 % of a core in the level (DecodeXmoFrame and libopus); the **render thread** 0.9-4.5 ms a frame.
+- **Vertex explosions** in the backdrop behind the menus, the prologue map and the loading cards (the level and the
+  UI are right); console only (the same NRO is clean in Ryujinx and on the PC); nothing in the log. Suspect: vertex
+  reads past a buffer's end (zeros in Ryujinx's Vulkan, memory on the console). Next: a console test.
+
 ## Decisions (made without asking, as the request said)
 
 | What | Decision | Why |
