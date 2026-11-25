@@ -520,6 +520,15 @@ says "SMAA ... 600 frames" in gameplay. (Menus that draw no depth of field get n
   this run reached for the first time (r3 is a stack address; the 52 bytes include the LR save at r1-8). Not chased
   further today. **Taken out** of the list with a `# out:` line (the base's rule for a copy the guard rejects); rc1's
   NRO still has it in place, so rc2 replaces rc1. Then post_codegen, the Switch and PC builds and verify4 again.
+- **verify4** (632 copies, the same script, 240 s): 345 of 632 reached, **115.9 million calls compared, 0
+  differences** (one call differed once and not when repeated: another thread changed its inputs); generated-code
+  self-checks, r1 mirror, stack forwards: 0 differences. The 287 copies no run reached are unchecked (the base's
+  caveat: "a check that never ran proves nothing").
+- **Ryujinx, batch 1 in place:** emu29 and emu30 ran while the machine carried the SEGA session's 6,745-shader
+  translation and two PC runs: Ryujinx took ~88 s just to start the 49 MB NRO (its own log), so emu29 reached only
+  the title (its log's tail was also lost: my output filter stopped the runner before it collected the logs; the
+  SD's toml was put back by hand: there was none before the run) and emu30 wrote no game log at all. Neither says
+  anything about the copies; to be run again on a quieter machine.
 
 ## Late input (2026-11-25)
 
