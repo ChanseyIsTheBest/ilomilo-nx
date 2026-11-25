@@ -543,6 +543,7 @@ says "SMAA ... 600 frames" in gameplay. (Menus that draw no depth of field get n
   skip the hook), which the compiler kept out of line beside the in-place `sub_X` that inlines the same body. Batch 1
   was chosen as callers of copies, so it has many such direct calls. Making the in-place `sub_X` and the direct-call
   body one function would take most of that back: a copy-tool change for the base (not done here).
+  **The user (2026-11-25, 11:55): the growth is fine ("things just inlined, which is a good thing"): no change.**
 
 ## Late input (2026-11-25)
 
