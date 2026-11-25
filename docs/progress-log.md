@@ -116,3 +116,10 @@ Times are AEST. The session runs until 23:04 on Wednesday 25 November 2026; no c
   to stop after it: D:\ilomilo\builds\2026-11-25_1222_rc3_console_PERSONAL (NRO md5 f2d01c92..., source 5d3022e5;
   the package script's msys2 git crashed at its snapshot step, the snapshot made with Git for Windows instead).
   Work stopped here at the user's word.
+- 17:30-17:50 (the user, after the stop) Cleanup, the user confirming the list: rc1, the rc2 console folder, the guard
+  build, the installer test zip, 287 run captures, 3 RenderDoc captures, game_media, out/elf deleted (D: 6.2 -> 12.7
+  GB free). rc3 copied to the user's SD card (F:\switch\ilomilo-nx, 439 files, the NRO md5 checked); then, at the
+  user's word, its game files replaced by the compressed ones (the installer's Node build: 360 .lz4b, the Opus banks
+  .xmop / .opcm; 247.7 -> 174 MB) with the installer's folder index in cache\; the uncompressed originals removed from
+  the card. emu33 (rc3 on that same compressed tree in Ryujinx): the .lz4b and Opus files read, the full game into the
+  first level, 0 errors, no crash. The compressed tree is kept in D:\ilomilo\builds\rc3_compressed\sd (game data).
