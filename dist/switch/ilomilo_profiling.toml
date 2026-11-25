@@ -1,0 +1,70 @@
+# ilomilo for the Switch: your options, WITH PROFILING ON (2026-11-25, the user: "make sure profiling is on in the
+# toml"). The same as the default ilomilo.toml (app/ilomilo_switch.toml) plus the four keys below: the CPU sampler
+# (logs/rex/rex_profile.log, read with this package's ilomilo-nx.elf), Banjo's profiler (logs/rex/banjo_profiler.log)
+# and the log (logs/renut_001.log). Sampling pauses each busy thread 1,000 times a second, so read shares from it,
+# not the best frame rate. Delete this file (the next start writes the plain one) or set the four back to play.
+switch_profile_stacks = true
+banjo_cpu_profiler = true
+log_level = "info"
+log_file_writer = true
+
+# ilomilo for the Switch: your options. Every other setting is built into the NRO (app/ilomilo_switch_defaults.toml).
+# Delete this file and the game writes it again at the next start.
+
+# Samples per pixel of the edge smoothing (MSAA): 1 (off, the default here), 2 or 4 (the game's own on the Xbox 360).
+# More gives smoother edges and more GPU work.
+msaa_level = 1
+
+# Frame rate cap: "Off" (the game's own) or "30".
+frame_cap = "Off"
+
+# Language (the console's language setting as the game reads it): 1 English, 2 Japanese, 3 German, 4 French,
+# 5 Spanish, 6 Italian, 7 Korean, 8 Traditional Chinese, 9 Portuguese.
+user_language = 1
+
+# Face buttons by position, as on an Xbox pad (bottom = A). false = by letter.
+input_xbox_layout = true
+
+# Single Joy-Cons are held sideways, one per player.
+input_joycon_sideways = true
+# With it, a single Joy-Con's stick is turned for the sideways grip.
+input_joycon_sideways_stick = true
+
+# Button mapping for each player: the Switch buttons that press each Xbox button. Empty = default.
+# Buttons: A B X Y L R ZL ZR PLUS MINUS LSTICK RSTICK UP DOWN LEFT RIGHT SL SR NONE. Example: a = "B, ZR"
+
+[input_p1]
+a = ""
+b = ""
+x = ""
+y = ""
+lb = ""
+rb = ""
+lt = ""
+rt = ""
+start = ""
+back = ""
+ls = ""
+rs = ""
+up = ""
+down = ""
+left = ""
+right = ""
+
+[input_p2]
+a = ""
+b = ""
+x = ""
+y = ""
+lb = ""
+rb = ""
+lt = ""
+rt = ""
+start = ""
+back = ""
+ls = ""
+rs = ""
+up = ""
+down = ""
+left = ""
+right = ""
