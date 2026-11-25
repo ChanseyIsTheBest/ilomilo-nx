@@ -528,7 +528,13 @@ says "SMAA ... 600 frames" in gameplay. (Menus that draw no depth of field get n
   translation and two PC runs: Ryujinx took ~88 s just to start the 49 MB NRO (its own log), so emu29 reached only
   the title (its log's tail was also lost: my output filter stopped the runner before it collected the logs; the
   SD's toml was put back by hand: there was none before the run) and emu30 wrote no game log at all. Neither says
-  anything about the copies; to be run again on a quieter machine.
+  anything about the copies; to be run again on a quieter machine. (The load turned out to be five orphaned uam.exe
+  of the SEGA session's crashed shader step, ~40-45 GB of commit memory from 10:36; that session stopped them at
+  ~11:10, which also let a third run, refused at 11:05 with 7.7 GB free, start.)
+- **emu31_rc2** (the release NRO with the 632 copies in place, deko3d_glsl.bin beside it, the player's default
+  ilomilo.toml only, the master game folder, 240 s on a quiet machine: 44 GB free): the logos, the title, "select a
+  story", the loading card and the first level played through several of its areas (20 captures); 48-60 fps in the
+  10 s reports; no error beyond the usual ResolvePath lines; no crash. With verify4 on the PC, batch 1 goes into rc2.
 
 ## Late input (2026-11-25)
 
