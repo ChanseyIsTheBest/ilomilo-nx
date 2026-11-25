@@ -42,6 +42,9 @@ banjo_cpu_profiler = false
 banjo_cpu_enhancements = true
 banjo_noncpu_enhancements = true
 banjo_wait_blocking_ring = true
+# The vertex explosions in the menus' and loading cards' backdrop: no frame ahead (the game cannot rewrite vertex
+# data the render thread has yet to read). Tested on the console by the user (2026-11-25): fixed, little or no cost.
+rr6_frames_ahead = 0
 banjo_mesa_disk_cache_off = true
 masseffect_native_pipelines_prewarm = true
 banjo_prewarm_threads = 1

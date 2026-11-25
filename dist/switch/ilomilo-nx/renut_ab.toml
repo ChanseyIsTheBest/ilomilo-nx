@@ -578,6 +578,7 @@ ultimate_renut_replay_inherit_same = false
 sasrt_gpu_skip_inert_draws = false
 banjo_renut_tags_check = 256
 banjo_renut_stream_redeem = false
+rr6_frames_ahead = 0
 banjo_renut_ab_targets = "25,28,22,26,33,42,1"
 banjo_renut_ab_s = 30
 

@@ -578,6 +578,7 @@ ultimate_renut_replay_inherit_same = false
 sasrt_gpu_skip_inert_draws = false
 banjo_renut_tags_check = 256
 banjo_renut_stream_redeem = false
+rr6_frames_ahead = 0
 banjo_renut_fast_draw_verify = true
 banjo_renut_resource_objects_verify = true
 banjo_renut_fetch_cache_verify = true

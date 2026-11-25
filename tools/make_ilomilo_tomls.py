@@ -60,6 +60,10 @@ SHIPPED = {
     'sasrt_gpu_skip_inert_draws': 'false',
     'banjo_renut_tags_check': '256',
     'banjo_renut_stream_redeem': 'false',
+    # The vertex explosions (the menus' and loading cards' backdrop, console and Ryujinx; docs/ilomilo-notes.md): no
+    # frame ahead, so the game cannot rewrite vertex data the render thread has yet to read. The user tested it on
+    # the console (2026-11-25): "fixes all vertex issues with seemingly little or no cost".
+    'rr6_frames_ahead': '0',
 }
 # Katamari's own keys in the base's file (its hand natives and its DLC switch), not in this port.
 DROP = re.compile(r'^\s*(katamari_\w+|banjo_cpu_native_sub_\w+)\s*=.*$\n?', re.M)
