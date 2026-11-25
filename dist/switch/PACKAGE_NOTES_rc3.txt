@@ -1,0 +1,44 @@
+ilomilo-nx rc3 (2026-11-25): notes for testing on the console
+================================================================
+
+rc3 = rc2 plus 500 more machine copies (1,132 in all). As rc2, it leaves out the one copy (sub_820B3F90) that rc1 had
+and the PC guard later rejected. ilomilo.toml has PROFILING ON (the user's request): see below.
+
+What this NRO is
+----------------
+- The distributable build (tools/ilomilo_build_switch_release.bat): no game shader inside (deko3d_glsl.bin beside it,
+  made by the web installer from your files), the machine copies in place (1,132 functions: 135 from the PC and
+  Ryujinx profiles, 1,000 eligible callers of those in two batches; 3 refused by the copy tool, 1 kept out), no guard forms. NOT built with PGO or LTO: those wait for your word (the base's order of work).
+- Built from the commit named by source_<commit>.tgz; ilomilo-nx.elf is its unstripped ELF.
+
+What was tested, and how (no console was used)
+----------------------------------------------
+- PC (Vulkan): boots, menus, the story intro and the first level played by an input script at 60 fps; the machine
+  copies checked against the generated code on every call (tools/run_pc_verify.ps1, verify5): 565 of 1,132 reached,
+  75 million calls compared, 0 differences (the 567 copies no run reached are unchecked). A poison run (registers
+  the copies call dead filled with garbage) was clean too.
+- The full game, not the trial: license_mask = 1 is built into the NRO and set in every toml here; the release NRO
+  with only the player's default ilomilo.toml showed the full game's menus (Ryujinx, emu27).
+- Ryujinx (this very NRO, the player's default settings): logo, title, menus, loading, the first level at 59-60 fps
+  (an emulator's figure, not the console's). The emulator's picture fault (coloured wedges in the depth-of-field passes)
+  is fixed (ilomilo_renut_gs_no_clip); on the console those draws already had their clip slot off.
+- The smaller files the installer makes: the Opus sound banks (.xmop, .opcm) load and play in Ryujinx (trial mode,
+  every bank). The upsell movie's H.265 hook is built but untested: the movie plays only in the trial's buy screen,
+  and the full game (this build) never shows it.
+
+Please check on the console
+---------------------------
+1. The picture: the title screen's backdrop and the levels' pale sky whole (no coloured wedges or strips).
+2. The sound: music, menu sounds and the narrator; anything that sounds wrong (the music is Opus at 128 kbit/s).
+3. Speed: configs/renut.toml writes logs/renut_001.log; its 10 s lines give the frame rate and the render thread.
+
+A console profile (what the hand-written natives wait for)
+----------------------------------------------------------
+This package's ilomilo.toml already has it on (switch_profile_stacks, banjo_cpu_profiler and the log). Play the
+slow scene for a few minutes, and bring back logs/rex/rex_profile.log with the name of the scene and the time. It is
+read with this package's ilomilo-nx.elf (a profile read with another build's ELF is wrong without looking wrong).
+
+Your decisions
+--------------
+- The music at 96 / 48 kbit/s instead of 128 / 64 would save about 11 MB more (it changes what is heard).
+- PGO + LTO for the Switch build, when you say so.

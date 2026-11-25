@@ -539,6 +539,11 @@ says "SMAA ... 600 frames" in gameplay. (Menus that draw no depth of field get n
 - **Eligible batch 2** (500 more callers of the copies; the list 1,135 lines, 1,132 copies): post_codegen ~25 min,
   the everyday Switch NRO 49.0 -> 51.1 MB. **verify5** (PC, 240 s, the gameplay script): 565 of 1,132 reached, 75.4
   million calls compared, **0 differences**.
+- **rc3** (the release NRO with the 1,132 copies in place: 49.1 MB). emu32_rc3 (Ryujinx, the player's default
+  ilomilo.toml, the master game folder, 240 s, a quiet machine): the full game's menus, the prologue map, the loading
+  card and the first level through several areas (19 captures); 59-60 fps; no error beyond ResolvePath; no crash.
+  The user asked for rc3 as a console build with profiling on in the toml: dist/switch/ilomilo_profiling.toml (the
+  player's options plus switch_profile_stacks, banjo_cpu_profiler and the log) is its ilomilo.toml.
 - **Why the NRO grew although the copies are in place** (the user asked; rc1 against rc2's ELF, aarch64 nm/size):
   `.text` 32.86 -> 35.63 MB. The 500 batch-1 functions themselves shrank (1.83 MB generated -> 1.21 MB as copies in
   place: the originals are dropped, as the user expected). The growth is 179 copies emitted a second time as
