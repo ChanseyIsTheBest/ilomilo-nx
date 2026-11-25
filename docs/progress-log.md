@@ -111,3 +111,8 @@ Times are AEST. The session runs until 23:04 on Wednesday 25 November 2026; no c
   console with the release shaders in a separate file: D:\ilomilo\builds\2026-11-25_1149_rc2_console_PERSONAL (rc2's
   NRO, deko3d_glsl.bin as its own file, the shader cache, the tomls, the game files with the title update, the DLC;
   READ_ME_FIRST.txt; game data: the user's own console only, never committed). Batch 2's code pass runs meanwhile.
+- 11:55-12:30 Batch 2 (500 more, 1,132 copies): verify5 0 differences; the release NRO (49.1 MB); emu32_rc3 clean
+  (59-60 fps, the full game into the first level). The user asked for rc3 as a console build with profiling on and
+  to stop after it: D:\ilomilo\builds\2026-11-25_1222_rc3_console_PERSONAL (NRO md5 f2d01c92..., source 5d3022e5;
+  the package script's msys2 git crashed at its snapshot step, the snapshot made with Git for Windows instead).
+  Work stopped here at the user's word.

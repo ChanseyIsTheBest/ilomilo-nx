@@ -14,6 +14,22 @@ the ports whose fixes it carries (its README, THIRD_PARTY_NOTICES.md and docs/ul
 sa2-nx, NetherSX2_nx, battd_nx and the bejeweled3-nx / zuma ports. GPL-3.0 where the sources are. Game data is never
 committed or distributed.
 
+## Where it stands (2026-11-25, 12:30: the user stopped the work after rc3)
+
+- **For the console:** rc3, D:\ilomilo\builds\2026-11-25_1222_rc3_console_PERSONAL (the user's own console only:
+  game data inside): the release NRO (1,132 machine copies in place, no game shader inside, no PGO / LTO, NRO md5
+  f2d01c92...), deko3d_glsl.bin as its own file, the shader cache, ilomilo.toml with profiling on
+  (dist/switch/ilomilo_profiling.toml), the game files with Title Update #1, the DLC, READ_ME_FIRST.txt. rc1 is
+  superseded (it has the copy the guard rejected); rc2 (D:\ilomilo\builds\2026-11-25_1117_rc2, no game data) is
+  the last plain package; the web installer's release is 0.1.1 (rc2's NRO).
+- **Checked on the PC and in Ryujinx (never on a console):** the full game boots, plays its menus, the prologue and
+  the first level at 60 fps on the PC and 59-60 in Ryujinx; the copies against the generated code: 0 differences
+  (verify5); Opus sound plays; the Switch-only picture fault fixed (ilomilo_renut_gs_no_clip).
+- **Next (the console):** the picture, the sound and the speed on real hardware; a console profile from rc3 (for the
+  hand-written natives); the H.265 upsell movie (trial only, untested); sub_820B3F90's guard difference (kept out).
+- **The user's decisions waiting:** PGO + LTO; the music at 96 kbit/s (about 11 MB less).
+- **Handoffs for the base:** D:\ilomilo\out (README.md lists the 7).
+
 ## Decisions (made without asking, as the request said)
 
 | What | Decision | Why |
