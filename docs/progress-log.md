@@ -129,3 +129,7 @@ Times are AEST. The session runs until 23:04 on Wednesday 25 November 2026; no c
   crashed two-player menus after two minutes. Fixed in the SDK (input_switch_player_numbers, xam_guest_signin_on_connect,
   xam_guest_profiles, XamReadTileToTexture tile 0), 58d027b2; the census diagnostic b036d71f. rc4 built and packaged
   (D:\ilomilo\builds\2026-11-25_2118_rc4, no game data). The console did not answer on the network: not put there yet.
+- 21:50-22:09 (the user: "It's awake now") rc4 on the console (rc3's NRO kept beside it): handheld player 1 (scripted),
+  sys-botbase's virtual Pro Controller player 2 signed in as "Player 2", joined, the two-player prologue played at
+  60 fps, player 2 moved milo, no errors. The user's ilomilo.toml restored byte for byte; the console left on the
+  Home menu, the virtual controller detached.

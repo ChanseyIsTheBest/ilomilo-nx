@@ -98,7 +98,15 @@ Three faults, each in the SDK, and a crash the fix uncovered. rc4 (D:\ilomilo\bu
   story card) never leaked: only two players' pictures are asked for.
 - **PC checks** (mp7-mp12, input_script_p2): player 2 joins (milo "Player 2", "A start"); two players through the
   story cards, the level card and loading into the prologue level at 60 fps; two minutes on the level card with no
-  growth and no crash. The console was asleep when rc4 was ready: not run there yet.
+  growth and no crash.
+- **The console (21:50-22:09, the user: "It's awake now"; rc4's NRO on the card, rc3's kept as ilomilo-nx_rc3.nro).**
+  Player 1 the handheld, driven by input_script in a test toml (the user's own ilomilo.toml put back after, byte for
+  byte; a copy stays as ilomilo_user_backup.toml); player 2 sys-botbase's virtual Pro Controller (the Switch's No1).
+  The log: "handheld is player 1", "Pro Controller (No1) is player 2", signed in as "Player 2" in the first frame.
+  Player 2 joined (milo "Player 2", "A start"), the story cards, the prologue's level card, loading and the level at
+  60 fps, player 2's stick walked milo; no error, no crash (out/console_runs/mp_rc4, renut_005-007.log). Two traps:
+  the user's input_xbox_layout = true makes the Switch's B the game's A (sys-botbase's "A" was player 2's back);
+  the story cards take "continue" from player 1 only (the game's own rule: player 2's A never advanced one).
 
 ## Decisions (made without asking, as the request said)
 
