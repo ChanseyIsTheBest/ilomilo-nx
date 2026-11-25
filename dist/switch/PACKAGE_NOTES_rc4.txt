@@ -1,0 +1,39 @@
+ilomilo-nx rc4 (2026-11-25): notes for testing on the console
+================================================================
+
+rc4 = rc3 plus the multiplayer fixes and no frame ahead. Only the NRO changes: keep rc3's deko3d_glsl.bin, game_root,
+dlc and cache on the SD card as they are (this package carries no game data and no shader package).
+
+What changed
+------------
+1. Player 1's controller is the profile again. Your console's log (renut_003.log, 20:01) showed the game started in
+   handheld mode, a Pro Controller connected as No1 and was made player 2, then the Joy-Cons came off as No1 and the
+   Pro Controller moved to No2. Players went by the order the controllers connected, so your player 1 (the Joy-Cons)
+   was Xam player 2 ("not signed in") and your player 2 (the Pro Controller) was player 1. Now each controller is the
+   player the Switch numbers it (the lights on the controller; the handheld and No1 are player 1), whenever it
+   connected. Setting: input_switch_player_numbers (on).
+2. Player 2 can join "play together". ilomilo reads a controller only while its player is signed in, never opens the
+   sign-in screen itself, and its multiplayer page takes A only from a player who is signed in to a profile (not a
+   guest): a guest's A shows the sign-in message. Players 2 to 4 now sign in as soon as their controller connects, as
+   local profiles of their own named "Player 2" to "Player 4". Settings: xam_guest_signin_on_connect,
+   xam_guest_profiles (both on). Player 2's progress is not saved separately (only player 1's profile is stored).
+3. A crash after two minutes on the menus with two players (found on the PC once player 2 could join): the game asks
+   for each player's gamer picture, the stub refused, and the game tried again every frame with a new 64x64 texture
+   it never freed, until the console's graphics memory ran out. The picture request now succeeds (a blank picture).
+4. rr6_frames_ahead = 0 is now the default (built in and in every toml): your console test, "fixes all vertex issues
+   with seemingly little or no cost".
+
+What was tested (PC, Vulkan, scripted controllers)
+--------------------------------------------------
+- Player 1 into multiplayer, player 2's A: milo shows "Player 2" and the prompt turns to "A start".
+- Two players: the story cards, the prologue's level card, the loading screen and the level played at 60 fps.
+- Two players left on the prologue's level card for two minutes: no growth of graphics memory (the census,
+  ilomilo_physical_census), no crash. Before the fix: 240 lost textures a second, a crash at 2 minutes.
+- One player, a fresh profile, three minutes on a story card: no crash (the leak needed two players' pictures).
+- Not yet run on the console (it did not answer on the network when the build was ready).
+
+Please check on the console
+---------------------------
+1. Two controllers: the controller showing player 1's light opens multiplayer; the other presses A to join; start
+   the prologue together and play a little.
+2. If anything is off, the log's "controller: ... is player N" lines say which controller was which player.

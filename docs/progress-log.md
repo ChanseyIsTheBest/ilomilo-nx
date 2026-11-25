@@ -123,3 +123,9 @@ Times are AEST. The session runs until 23:04 on Wednesday 25 November 2026; no c
   .xmop / .opcm; 247.7 -> 174 MB) with the installer's folder index in cache\; the uncompressed originals removed from
   the card. emu33 (rc3 on that same compressed tree in Ryujinx): the .lz4b and Opus files read, the full game into the
   first level, 0 errors, no crash. The compressed tree is kept in D:\ilomilo\builds\rc3_compressed\sd (game data).
+- 19:55-21:20 (the user: frames ahead 0 "fixes it", then multiplayer) rr6_frames_ahead = 0 made the default (b2594c77).
+  Multiplayer: the console's log showed the controller order swap (Joy-Cons No1 = Xam user 1); the PC showed player 2
+  could not join (not signed in; then as a guest the page refused it); the fix uncovered a picture-texture leak that
+  crashed two-player menus after two minutes. Fixed in the SDK (input_switch_player_numbers, xam_guest_signin_on_connect,
+  xam_guest_profiles, XamReadTileToTexture tile 0), 58d027b2; the census diagnostic b036d71f. rc4 built and packaged
+  (D:\ilomilo\builds\2026-11-25_2118_rc4, no game data). The console did not answer on the network: not put there yet.

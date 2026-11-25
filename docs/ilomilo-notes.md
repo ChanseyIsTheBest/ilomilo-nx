@@ -62,6 +62,43 @@ Album), read only.
 - Found on the way (sonic racing's finding of SASRT's release-shader bug): draw.cpp's tile-twin check read
   g_shaderLiterals at a merged-table offset; now g_activeShaderLiterals. Not this bug (the tile-twin merge takes only
   tessellated draws; ilomilo never logs one), but wrong with any installed version-2 package: a base handoff.
+- **Result (the user, ~20:00): "Frames ahead 0 fixes it performance is still good".** rr6_frames_ahead = 0 is now the
+  default: app/ilomilo_switch_defaults.toml (built in) and tools/make_ilomilo_tomls.py's SHIPPED (every dist toml),
+  commit b2594c77.
+
+## Multiplayer (2026-11-25, 20:10-21:20; the user: player 1 "not signed in", player 2 could start, player 1 not join)
+
+Three faults, each in the SDK, and a crash the fix uncovered. rc4 (D:\ilomilo\builds\2026-11-25_2118_rc4) has them.
+- **The controller order (the console's log, out/console_runs/mp_user/renut_003.log).** The game started in handheld
+  mode (handheld = player 1); a Pro Controller connected as No1 and became player 2; then the Joy-Cons came off as No1
+  and the Pro Controller moved to No2. Guest users followed the order controllers connected in, so the user's player
+  1 (Joy-Cons, the Switch's No1) was Xam user 1 and the Pro Controller user 0. Now `input_switch_player_numbers` (on):
+  a Switch controller is the player the Switch numbers it (handheld and No1 player 1, NoN player N; DeviceInfo's new
+  player_number, InputSystem::RefreshDevices); contested (handheld and No1): the holder keeps it; with nobody on player
+  1, the lowest-numbered controller is player 1.
+- **Nobody but user 0 signed in.** ilomilo's controller poll (sub_821C9418, through a vtable) skips a controller whose
+  bit is not in the signed-in mask (0x824B3308, set per screen; all users on "play together"), and the game never
+  opens the sign-in screen, so the SDK's guests (port 55) never signed in. hexic2-nx's xam_guest_signin_on_connect
+  (its commit 97109a5a) taken, on here, and asked from XamUserGetSigninInfo too (ilomilo polls it for users 1-3 each
+  frame with flags 1 and 2).
+- **No guests as players.** The multiplayer page (MultiplayerPage, vtable 0x8200C0A0, its input handler
+  sub_82142428: event 210 = A, the user index) shows the sign-in message for a player whose user record word 72 is 0
+  (record array 0x826452C0, 104 bytes a user, filled by sub_821A7988 / sub_821A7B28 from XamUserGetSigninInfo: word
+  72 = not a guest, 76 = signed in to Live, 84 = guest, 88 = not Live-enabled). So `xam_guest_profiles` (on): players
+  2-4 are local profiles of their own ("Player 2", no guest flag, their XUID as before), their profile setting writes
+  succeed (not stored).
+- **The crash it uncovered: graphics memory gone after two minutes with two players.** The PC ran out of guest
+  physical memory (MmAllocatePhysicalMemoryEx of 16 KB failed, then a call through 0) after about two minutes on the
+  story cards or the prologue's level card. The census (`ilomilo_physical_census`, resource.cpp's AllocPhysical /
+  FreePhysical): 16 KB allocations growing by 240 a second, never freed, from player 2's sign-in. The picture loader
+  sub_821E4AF8 makes a 64x64 texture (16 KB) and asks XamReadTileToTexture (sub_822755B8: type 2, title 0, tile 0,
+  the user index) for the player's own picture; the SDK refused tile 0, the loader set "not loaded" and tried again the
+  next frame with a new texture, the last one never freed. Types 2-5 with tile 0 for a signed-in user now succeed (a
+  blank picture; nothing shows it on these screens). The single-player control (a fresh profile, three minutes on a
+  story card) never leaked: only two players' pictures are asked for.
+- **PC checks** (mp7-mp12, input_script_p2): player 2 joins (milo "Player 2", "A start"); two players through the
+  story cards, the level card and loading into the prologue level at 60 fps; two minutes on the level card with no
+  growth and no crash. The console was asleep when rc4 was ready: not run there yet.
 
 ## Decisions (made without asking, as the request said)
 
