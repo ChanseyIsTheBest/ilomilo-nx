@@ -13722,8 +13722,11 @@ bool TileTwinPrepareLocked(const GuestDevice &device, const DrawCall &call, cons
     if (r != reg && ((ps_used[r / 32] >> (r % 32)) & 1u) && std::memcmp(psc.Register(r), psb.Register(r), 16) != 0)
       return refuse(6, kFloatBegin + 0x1000 + r * 16);
   }
+  // ilomilo-nx (2026-11-25, sasrt-nx's finding of its 1.0.0 release-shader bug): the active table. With an installed
+  // version 2 package the entries' literalOffset index the merged table (shader_library.cpp Table()), not the build's
+  // own g_shaderLiterals: reading that one took another shader's literals (or ran past its end).
   for (u32 i = 0; twinsel && i < ps->entry->literalCount; ++i)
-    if (g_shaderLiterals[ps->entry->literalOffset + i].reg == reg)
+    if (g_activeShaderLiterals[ps->entry->literalOffset + i].reg == reg)
       return refuse(7, reg);
   // The lower tile's viewport: the same but for the scissor (and the pixel origin), the scissors joined.
   const ViewportState vb = ComputeViewport(GuestDevice(b), targets);

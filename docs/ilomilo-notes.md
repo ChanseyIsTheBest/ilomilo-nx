@@ -44,6 +44,24 @@ Album), read only.
 - **Vertex explosions** in the backdrop behind the menus, the prologue map and the loading cards (the level and the
   UI are right); console only (the same NRO is clean in Ryujinx and on the PC); nothing in the log. Suspect: vertex
   reads past a buffer's end (zeros in Ryujinx's Vulkan, memory on the console). Next: a console test.
+- **The investigation (18:10-19:20).** The explosions were in the emulator too and I had missed them: emu27, emu31,
+  emu32, emu33 (the release NRO with the player's settings) show them; emu22 / 25 / 26 (the verify test toml) and the
+  everyday NRO do not. But five reruns of exactly emu27's setup this evening (rel_none2, rel_A2, rel_p10, rel_A10,
+  rel_B10) were clean: not the settings, not the shader package (byte-identical to the built-in one, the tables equal
+  in every field deko3d reads), not the build options (only the shader paths differ), not the DKSH cache or pipeline
+  list (unchanged since 07:16), not the game-folder index, not the emulator (unchanged since 2026-11-10). What is left
+  is a race. rr6_frames_ahead = 1 (the default) lets the game build frame N+1 while the render thread converts frame
+  N, and Renut reads the game's vertex buffers when the render thread reaches a draw: a dynamic buffer the game
+  rewrites for the next frame (the menus' and loading cards' animated backdrop; the level is mostly static) can be
+  read half-written. The console's render thread lags more, so it shows there every time; in Ryujinx it depends on
+  the load. sasrt-nx saw its skinned models explode the same way with one frame ahead. (rr6_diag_render_delay_ms = 10
+  to provoke it in Ryujinx stalled the game: no answer.)
+- **The console test (19:25, the user: "Ftp it over"):** `rr6_frames_ahead = 0` added to the card's ilomilo.toml
+  (profiling kept; out/console_runs/ahead0 has the before / after files). The user opens the menu and a loading card.
+  If clean, the fix is for the renderer to copy those vertex buffers when the draw is queued (keeping one frame ahead).
+- Found on the way (sonic racing's finding of SASRT's release-shader bug): draw.cpp's tile-twin check read
+  g_shaderLiterals at a merged-table offset; now g_activeShaderLiterals. Not this bug (the tile-twin merge takes only
+  tessellated draws; ilomilo never logs one), but wrong with any installed version-2 package: a base handoff.
 
 ## Decisions (made without asking, as the request said)
 
