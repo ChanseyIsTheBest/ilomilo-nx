@@ -133,3 +133,17 @@ Times are AEST. The session runs until 23:04 on Wednesday 25 November 2026; no c
   sys-botbase's virtual Pro Controller player 2 signed in as "Player 2", joined, the two-player prologue played at
   60 fps, player 2 moved milo, no errors. The user's ilomilo.toml restored byte for byte; the console left on the
   Home menu, the virtual controller detached.
+- 22:20-23:21 (the user: "an instrumented build so I can collect pgo data on the console", logging off by default,
+  "the shipped game to have MSAA off SMAA on") Logging: already off in the built-in settings (log_level "off",
+  log_file_writer false, no deko3d.log, the profilers off); only the user's rc3 profiling toml on the card turned it
+  on. MSAA off / SMAA on: already the built-in defaults (msaa_level 1, banjo_renut_smaa true) and the player's toml's
+  msaa_level 1; the user's own card toml had 4 / false. The training toml (out/console_runs/pgo/ilomilo_pgo.toml): the
+  user's settings with MSAA 1, SMAA and logging at their defaults. tools/ilomilo_build_switch_pgo_gen.bat (the release
+  options + LTO + BANJO_PGO=generate, app/out/switch-pgo-gen, -j 4) built at the user's word as a third build with a
+  3 GB free-commit watchdog: 39 min, NRO 74.6 MB, lowest free commit 5.3 GB. Keep app/out/switch-pgo-gen until the
+  streams are merged (they name this PC's folders).
+- 23:22-23:27 The instrumented NRO on the card as ilomilo-nx.nro (rc4 kept as ilomilo-nx_rc4.nro, rc3 as
+  ilomilo-nx_rc3.nro) with the training toml (the user's own was identical to ilomilo_user_backup.toml, which stays).
+  A boot check: logos and the title screen at 60 fps (the user's overlay), no new log (logging off). HOME 5 s later:
+  the card's pgo/ folder made but empty (the game suspended before its focus-loss dump finished, it seems); the console
+  then slept, so the 2-minute and exit dumps are not checked yet.
