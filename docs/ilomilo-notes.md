@@ -536,6 +536,9 @@ says "SMAA ... 600 frames" in gameplay. (Menus that draw no depth of field get n
   story", the loading card and the first level played through several of its areas (20 captures); 48-60 fps in the
   10 s reports; no error beyond the usual ResolvePath lines; no crash. With verify4 on the PC, batch 1 goes into rc2.
 
+- **Eligible batch 2** (500 more callers of the copies; the list 1,135 lines, 1,132 copies): post_codegen ~25 min,
+  the everyday Switch NRO 49.0 -> 51.1 MB. **verify5** (PC, 240 s, the gameplay script): 565 of 1,132 reached, 75.4
+  million calls compared, **0 differences**.
 - **Why the NRO grew although the copies are in place** (the user asked; rc1 against rc2's ELF, aarch64 nm/size):
   `.text` 32.86 -> 35.63 MB. The 500 batch-1 functions themselves shrank (1.83 MB generated -> 1.21 MB as copies in
   place: the originals are dropped, as the user expected). The growth is 179 copies emitted a second time as
