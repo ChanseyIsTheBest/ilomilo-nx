@@ -24,6 +24,15 @@
 #include <cstring>
 #include <mutex>
 #include <unordered_set>
+// ilomilo-nx (2026-11-25): ilomilo_physical_census
+#include <chrono>
+#include <map>
+#include <string>
+#include <unordered_map>
+#include <vector>
+#include <fmt/format.h>
+#include <rex/cvar.h>
+#include <rex/runtime.h>
 
 #include <rex/hook.h>
 
@@ -57,7 +66,55 @@ REX_IMPORT(__imp__MmAllocatePhysicalMemoryEx, MmAllocatePhysicalMemoryEx,
            u32(u32, u32, u32, u32, u32, u32));
 REX_IMPORT(__imp__MmFreePhysicalMemory, MmFreePhysicalMemory, void(u32, u32));
 
+// ilomilo-nx (2026-11-25, two players: guest physical memory ran out after two minutes on the menus): the live D3D
+// physical allocations by size and the game's caller (the hooked call's LR), the largest groups logged every 10 s.
+REXCVAR_DEFINE_BOOL(ilomilo_physical_census, false, "Nuts&Bolts/Debug",
+                    "Diagnostic: every 10 s, the D3D physical allocations still live, by size and the game's caller "
+                    "(a leak's caller grows)");
+
 namespace {
+
+namespace census {
+std::mutex g_mutex;
+std::unordered_map<u32, std::pair<u32, u32>> g_live;            // va -> (size, caller)
+std::map<std::pair<u32, u32>, std::pair<int64_t, uint64_t>> g_by;  // (size, caller) -> (live, made)
+int64_t g_next_ms = 0;
+
+void Add(u32 va, u32 size) {
+  const u32 caller = u32(rex::runtime::current_ppc_context()->lr);
+  const int64_t now = std::chrono::duration_cast<std::chrono::milliseconds>(
+                          std::chrono::steady_clock::now().time_since_epoch()).count();
+  std::lock_guard lock(g_mutex);
+  g_live[va] = {size, caller};
+  auto &group = g_by[{size, caller}];
+  ++group.first;
+  ++group.second;
+  if (now < g_next_ms)
+    return;
+  g_next_ms = now + 10000;
+  std::vector<std::pair<std::pair<u32, u32>, std::pair<int64_t, uint64_t>>> groups(g_by.begin(), g_by.end());
+  std::sort(groups.begin(), groups.end(), [](const auto &a, const auto &b) {
+    return int64_t(a.first.first) * a.second.first > int64_t(b.first.first) * b.second.first;
+  });
+  uint64_t total = 0;
+  for (const auto &[va_, item] : g_live)
+    total += item.first;
+  std::string line;
+  for (size_t i = 0; i < groups.size() && i < 8; ++i)
+    line += fmt::format("{}{} B from {:08X}: {} live ({} made)", i ? "; " : "", groups[i].first.first,
+                        groups[i].first.second, groups[i].second.first, groups[i].second.second);
+  RGPU_INFO("[physical census] {} live, {:.1f} MB: {}", g_live.size(), total / 1048576.0, line);
+}
+
+void Remove(u32 va) {
+  std::lock_guard lock(g_mutex);
+  const auto it = g_live.find(va);
+  if (it == g_live.end())
+    return;
+  --g_by[it->second].first;
+  g_live.erase(it);
+}
+}  // namespace census
 
 constexpr u32 kAllocPhysical = 0xB1800000u;  // XMemFree attributes of resource data
 constexpr u32 kAllocHeader = 0x24800000u;    // ... of resource headers
@@ -116,11 +173,15 @@ u32 AllocPhysical(u32 size, u32 attributes) {
   const u32 va = MmAllocatePhysicalMemoryEx(0, size, protect, 0, ~0u, kAlignment[(attributes >> 24) & 0xF]);
   if (!va)
     RGPU_ERROR("D3D: {} bytes of physical memory not available", size);
+  else if (REXCVAR_GET(ilomilo_physical_census))
+    census::Add(va, size);
   return va;
 }
 
 // XPhysicalFree (0x826F2048).
 void FreePhysical(u32 va) {
+  if (va && REXCVAR_GET(ilomilo_physical_census))
+    census::Remove(va);
   if (va)
     MmFreePhysicalMemory(0, va);
 }

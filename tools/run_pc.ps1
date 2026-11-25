@@ -8,8 +8,9 @@
 # place of ilomilo's (ilomilo-nx: D:/ilomilo/game, with the title update's default.xexp beside default.xex) (passing --game_data_root in -Extra too would give the key twice).
 # ilomilo-nx (2026-11-25, the user: "make sure the game runs in non trial mode"): -License 1, the full game, passed
 # explicitly (the SDK's license_mask default is 0, the trial; the Switch NRO has 1 built in). -License 0: the trial.
+# -UserData (2026-11-25): another profile/save folder in place of out/pc_user (a fresh profile: an empty folder).
 param([int]$Seconds = 90, [string]$Name = "run", [int]$Every = 15, [string]$Extra = "", [switch]$Visible,
-      [string]$Game = "D:/ilomilo/game", [int]$License = 1)
+      [string]$Game = "D:/ilomilo/game", [int]$License = 1, [string]$UserData = "")
 $root = Split-Path -Parent $PSScriptRoot
 $dir = Join-Path $root "app\out\pc"
 $exe = Join-Path $dir "renut.exe"
@@ -19,7 +20,7 @@ $log = Join-Path $logs "$Name.log"
 Remove-Item $log -ErrorAction SilentlyContinue
 $min = if ($Visible) { "false" } else { "true" }
 $args = @("--log_file=$log", "--audio_mute=true", "--window_start_minimized=$min", "--fullscreen=false",
-          "--game_data_root=$Game", "--user_data_root=$root/out/pc_user",
+          "--game_data_root=$Game", "--user_data_root=$(if ($UserData) { $UserData } else { "$root/out/pc_user" })",
           "--nfsmw_captura_cada_s=$Every", "--nfsmw_captura_max=60", "--log_file_writer=false", "--license_mask=$License") +
         @($Extra -split ' ' | Where-Object { $_ })
 # banjo-nx (2026-11-19): Start-Process joins -ArgumentList's elements with spaces and quotes none of them, so a path
