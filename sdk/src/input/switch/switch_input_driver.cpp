@@ -113,6 +113,13 @@ REXCVAR_DEFINE_INT32(input_switch_disconnect_grace_ms, 1000, "Input",
                      "the game is told it is gone (a Bluetooth hiccup or a layout change clears in well under a "
                      "second); a controller that connects meanwhile (the handheld's Joy-Cons taken off, a new pad) ends "
                      "it at once. 0: reported at once, as before");
+// ilomilo-nx (2026-11-25, the user's console: in ilomilo's multiplayer player 1's controller was "not signed in", player
+// 2's could start it): by connection order, a controller that connected or woke after another was a later player than
+// its lights say, and only player 1 has the profile.
+REXCVAR_DEFINE_BOOL(input_switch_player_numbers, true, "Input",
+                    "The Switch's controllers are the players the Switch numbers them (the handheld and No1 player 1, "
+                    "No2 player 2, ...: the number on the controller's lights, which the controller applet changes), "
+                    "whenever they connected. false: by connection order (the first to connect is player 1), as before");
 
 // Route recording for unattended test runs: the game's own pad input, written and played back here.
 // MINUS on pad 1 marks the start (and, while recording, the end), so the load time before the route does not
@@ -1114,6 +1121,9 @@ void SwitchInputDriver::EnumerateDevices(std::vector<DeviceInfo>& out) {
     }
     info.guid = i == 0 ? std::string("switch-handheld") : "switch-npad-" + std::to_string(i);
     info.synthetic = false;
+    // ilomilo-nx (2026-11-25): the Switch's own player number (the handheld and No1 player 1, NoN player N), which
+    // InputSystem makes the guest user (input_switch_player_numbers).
+    if (REXCVAR_GET(input_switch_player_numbers)) info.player_number = i == 0 ? 0u : uint32_t(i - 1);
     out.push_back(std::move(info));
   }
 }
