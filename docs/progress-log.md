@@ -147,3 +147,12 @@ Times are AEST. The session runs until 23:04 on Wednesday 25 November 2026; no c
   A boot check: logos and the title screen at 60 fps (the user's overlay), no new log (logging off). HOME 5 s later:
   the card's pgo/ folder made but empty (the game suspended before its focus-loss dump finished, it seems); the console
   then slept, so the 2-minute and exit dumps are not checked yet.
+- 2026-11-26 11:30-12:05 (the user: "please make final build 1.0.0 get the pgo data off my console make this the icon
+  make a github repo for the game and the installer make both public 1.0.0 release", the trial video an installer
+  option, the icon allowed in the repo) The user's training session: pgo/banjo_pgo_2.stream (5.0 MB, 11:36; my boot
+  check's banjo_pgo_1.stream.tmp left out), merged into pgo-inplace/ (479 files; the base's other-game profile removed).
+  The icon: the user's picture as tools/switch/icon/ilomilo_icon.jpg (256x256), the NRO's version 1.0.0.
+  tools/ilomilo_build_switch_final.bat (PGO use + LTO, 4 jobs): 20 min, NRO 51.65 MB (sha256 05b3235043551783), no
+  profile mismatch, the NACP "ilomilo" / ChanseyIsTheBest / 1.0.0 with the user's icon. Installer: game.json
+  "leave_out" (upsell.wmv, ticked by default) and the page's icon; release 1.0.0 (make_release.py); full_node.mjs
+  --opus --reference --dlc and check_zip.py OK. README.md is ilomilo's; the base's is docs/renut-ultimate-base-README.md.
