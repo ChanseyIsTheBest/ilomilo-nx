@@ -4,11 +4,11 @@
 # ilomilo-nx (2026-11-25): Katamari's natives' keys and N&B's native copies' keys taken out; the picture as the Xbox 360
 # draws it by default (the user decides what changes it: configs in dist/switch/ilomilo-nx/configs):
 #   - MSAA: the base's 1 sample (ilomilo asks for 4x MSAA in three predicated tiles: msaa_level = 4 is a config);
-#   - 720 lines in both modes (the console scales to the TV); 1080 docked is a config;
+#   - 720 lines handheld, 1080 docked (2026-11-26, the user: "make the game 1080p by default in docked");
 #   - no forwarder (three cores): banjo_forwarder_program_id = "" (a forwarder made by the user sets its own id).
 msaa_level = 1
-banjo_renut_render_height_docked = 720
-banjo_renut_display_height_docked = 720
+banjo_renut_render_height_docked = 1080
+banjo_renut_display_height_docked = 1080
 banjo_forwarder_program_id = ""
 # SMAA (banjo_renut_smaa, on in the base) after ilomilo's final composite: the depth-of-field pass back into the
 # 1280x720 target (pixel shader 0B4973CE2EEC601A, the last full-screen draw before the HUD in both logged gameplay

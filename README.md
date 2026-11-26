@@ -34,7 +34,7 @@ default); later sessions start smoothly.
   "play together" screen.
 - Face buttons by position, as on the Xbox 360 pad (`input_xbox_layout = false` for by letter); button maps per player
   (`[input_p1]`, `[input_p2]`); single Joy-Cons held sideways, one per player.
-- 720p in handheld and docked; SMAA on and MSAA off by default (`msaa_level = 2` or `4` for the game's own 4x MSAA).
+- 1080p docked and 720p handheld; SMAA on and MSAA off by default (`msaa_level = 2` or `4` for the game's own 4x MSAA).
 - Optimised for the console: profile-guided and link-time optimisation trained on a play session on real hardware, and
   optimised copies of over a thousand of the game's busiest functions.
 - Smaller files from the installer: the music and voices re-encoded to Opus, the game's archives packed with LZ4, and

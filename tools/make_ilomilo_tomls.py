@@ -33,8 +33,8 @@ SHIPPED = {
     'renut_gpu_backend': '"deko3d"',
     # The Xbox 360's picture: 720 lines in both modes (the console scales to the TV), no dynamic resolution.
     'banjo_renut_render_height_handheld': '720',
-    'banjo_renut_render_height_docked': '720',
-    'banjo_renut_display_height_docked': '720',
+    'banjo_renut_render_height_docked': '1080',  # 2026-11-26: the user's default
+    'banjo_renut_display_height_docked': '1080',
     'banjo_renut_dynamic_resolution': 'false',
     # The base's one sample (port 118). ilomilo asks for 4x MSAA (three predicated tiles of 1280x256):
     # configs/renut_msaa4.toml has the game's own count, the user's decision.
