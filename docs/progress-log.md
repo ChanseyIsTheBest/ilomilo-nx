@@ -161,3 +161,8 @@ Times are AEST. The session runs until 23:04 on Wednesday 25 November 2026; no c
   beside it). Public: github.com/ChanseyIsTheBest/ilomilo-nx and ilomilo-nx-installer (pushed as main), the installer on
   GitHub Pages (chanseyisthebest.github.io/ilomilo-nx-installer, built), releases v1.0.0 on both (the game's with
   ilomilo-nx.nro, 51,653,553 bytes).
+- 12:15-12:45 (the user: "please make the game 1080p by default in docked and reupload the 1.0.0 nro") 1080 lines
+  docked (render and display) in the built-in settings and every package toml (a089b8ce); the final NRO rebuilt
+  (12 min, the same profile, sha256 c2be29725d7372a6, NACP 1.0.0, the user's icon), copied to the console over FTP,
+  the release's ilomilo-nx.nro replaced (--clobber) and its notes updated, the installer's release refreshed and
+  pushed (full_node and check_zip OK).
