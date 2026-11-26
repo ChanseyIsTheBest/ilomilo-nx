@@ -156,3 +156,8 @@ Times are AEST. The session runs until 23:04 on Wednesday 25 November 2026; no c
   profile mismatch, the NACP "ilomilo" / ChanseyIsTheBest / 1.0.0 with the user's icon. Installer: game.json
   "leave_out" (upsell.wmv, ticked by default) and the page's icon; release 1.0.0 (make_release.py); full_node.mjs
   --opus --reference --dlc and check_zip.py OK. README.md is ilomilo's; the base's is docs/renut-ultimate-base-README.md.
+- 12:10-12:20 (the user: "copy the nro over now using overwrite the old one It doesn't need to be checked make both
+  github things public") The 1.0.0 NRO on the card as ilomilo-nx.nro (over the instrumented one; rc3 and rc4 stay
+  beside it). Public: github.com/ChanseyIsTheBest/ilomilo-nx and ilomilo-nx-installer (pushed as main), the installer on
+  GitHub Pages (chanseyisthebest.github.io/ilomilo-nx-installer, built), releases v1.0.0 on both (the game's with
+  ilomilo-nx.nro, 51,653,553 bytes).
