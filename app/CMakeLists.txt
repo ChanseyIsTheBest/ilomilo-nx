@@ -1009,17 +1009,19 @@ if(REXGLUE_PLATFORM_SWITCH)
                      "${CMAKE_CURRENT_SOURCE_DIR}/ilomilo_switch_defaults.toml"
                      "${CMAKE_CURRENT_SOURCE_DIR}/ilomilo_switch.toml")
     endif()
-    # ilomilo-nx: an icon of its own (tools/switch/icon/ilomilo_icon.jpg, plain text made for this port: no game art).
+    # ilomilo-nx: the NRO's icon, tools/switch/icon/ilomilo_icon.jpg (256x256). 2026-11-26 (1.0.0): the user's picture
+    # (it replaced the plain-text icon made for the test packages).
     set(RENUT_ICON "${CMAKE_CURRENT_SOURCE_DIR}/../tools/switch/icon/ilomilo_icon.jpg")
+    message(STATUS "ilomilo: NRO icon ${RENUT_ICON}")
     set(RENUT_ICON_ARG)
     if(EXISTS "${RENUT_ICON}")
         set(RENUT_ICON_ARG ICON "${RENUT_ICON}")
     endif()
-    # ilomilo-nx (2026-11-25): author ChanseyIsTheBest (the base's), version 0.1.0 (the first test packages).
+    # ilomilo-nx: author ChanseyIsTheBest (the base's); version 1.0.0 (2026-11-26, the release; 0.1.0 the test packages).
     rexglue_switch_add_nro(renut
         NAME "${RENUT_GAME_NAME}"  # port 193: set once, above
         AUTHOR "ChanseyIsTheBest"
-        VERSION "0.1.0"
+        VERSION "1.0.0"
         ${RENUT_ICON_ARG})
 endif()
 

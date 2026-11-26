@@ -34,7 +34,7 @@ committed or distributed.
 
 The user ran rc3 on the console and asked for its screenshots, videos and logs over FTP and for a CPU and GPU
 breakdown (out/console_runs/con1/breakdown.md has the tables; the files are there too, game screenshots included:
-never committed). The console's address went into out/switch_host.txt (192.168.1.197, as every port here) and the
+never committed). The console's address went into out/switch_host.txt (the console's address on the home network) and the
 port's folder into out/switch_sd_root.txt (/switch/ilomilo-nx); the Album is on the emuMMC (/emuMMC/RAW1/Nintendo/
 Album), read only.
 - **It runs:** 58-64 fps in the menus, loading and the first level (handheld clocks), CPU 38-119 % of the 400 %
